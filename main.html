@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Mask???</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #000;
+            color: #fff;
+            background-image: url('bg.jpg');
+            background-size: cover;
+            background-position: center;
+            overflow: auto;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .coins {
+            font-size: 30px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-top: -20px;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 4vw; /* Используем viewport width для размера текста */
+            flex: 1;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin: 0 1%; /* Меньший отступ для лучшей адаптации */
+            border-radius: 5px;
+            max-width: 30%; /* Ограничиваем максимальную ширину кнопок */
+        }
+
+        .navbar button:hover {
+            background-color: #555;
+            transform: scale(1.05);
+        }
+
+        .navbar button:active {
+            background-color: #777;
+            transform: scale(0.95);
+        }
+
+        /* Медиа-запрос для более мелких экранов */
+        @media (max-width: 600px) {
+            .navbar button {
+                padding: 10px;
+                font-size: 5vw; /* Больше шрифт на маленьких экранах */
+                margin: 0 2%; /* Уменьшить отступы между кнопками */
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .modal-content {
+            background-color: #fff;
+            color: #000;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            text-align: center;
+            border-radius: 10px;
+            animation: zoomIn 0.5s ease-in-out;
+        }
+        .modal-content h2 {
+            margin: 0 0 20px;
+        }
+        .modal-content p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .modal-content button {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .modal-content button:hover {
+            background-color: #444;
+        }
+        .leaderboard {
+            text-align: center;
+            margin-top: 2px;
+            padding: 20px;
+            border-radius: 10px;
+            background: none; /* Удаление фона */
+        }
+        .player-rank {
+            background: rgba(255, 255, 255, 0); /* Прозрачный фон */
+            border: 3px solid white; /* Золотая рамка */
+            color: #fff; /* Черный текст */
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 20px;
+            position: relative; /* Для правильного позиционирования эмодзи */
+        }
+        .player-rank p {
+            margin: 0; /* Удаление отступов */
+            font-size: 24px; /* Большой размер шрифта */
+            font-weight: bold; /* Жирный шрифт */
+        }
+        .player-rank::before {
+            content: '🎯'; /* Эмодзи мишени */
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px; /* Размер эмодзи */
+        }
+        .leaderboard-info {
+            display: flex;
+            justify-content: space-between; /* Равномерное распределение пространства */
+            align-items: center; /* Выравнивание по центру по вертикали */
+            margin: 10px 0;
+            font-size: 20px;
+            width: 100%;
+        }
+        .leaderboard-info span {
+            margin: 0 10px; /* Отступ между элементами */
+        }
+        .leaderboard ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%; /* Растянуть на всю ширину экрана */
+            box-sizing: border-box; /* Учитывать padding и border в ширине элемента */
+        }
+        .leaderboard li {
+            background: rgba(255, 255, 255, 0.5); /* Белый полупрозрачный фон */
+            color: #000; /* Черный текст */
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            width: 90vw; /* Растянуть на всю ширину экрана */
+            box-sizing: border-box; /* Учитывать padding и border в ширине элемента */
+        }
+        .leaderboard .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+        .leaderboard li span {
+            display: inline-block;
+            width: auto; /* Автоматическая ширина */
+        }
+        .leaderboard li span.rank {
+            margin-right: 10px; /* Отступ между медалькой и аватаркой */
+        }
+        .leaderboard li span:last-child {
+            text-align: right;
+            flex: 1; /* Занимает всё доступное пространство */
+        }
+        .leaderboard li::before {
+            margin-right: 10px; /* Отступ между номером и ником */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .modal-content {
+            background-color: #fff;
+            color: #000;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            text-align: center;
+            border-radius: 10px;
+            animation: zoomIn 0.5s ease-in-out;
+        }
+        .modal-content h2 {
+            margin: 0 0 20px;
+        }
+        .modal-content p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .modal-content button {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .modal-content button:hover {
+            background-color: #444;
+        }
+
+
+        /* Стили для вкладки Задания */
+        .tasks {
+            text-align: center;
+            margin-top: 20px;
+            padding-bottom: 66px;
+        }
+        .task-block {
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            text-align: center;
+            width: 90%;
+            position:relative;
+            border: 1px solid #ddd;
+        }
+        .task-block h3 {
+            margin-top: 0;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+        .task img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .task-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100px; /* фиксированная ширина для кнопок*/
+            text-align: center;
+        }
+
+        .task-button.completed {
+            background-color: #414141;
+            color: rgb(255, 255, 255);
+            border: none;
+            width: 60px; /* та же ширина, что и у кнопки */
+            text-align: center;
+        }
+
+        .task-button:hover {
+            background-color: #444;
+        }
+
+        .task-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+
+
+        .task .status {
+            font-size: 18px;
+            color: green;
+        }
+        .task .status.hidden {
+            display: none;
+        }
+        .task .description {
+            flex: 1;
+            text-align: left;
+            padding-left: 10px;
+            font-size: 16px;
+        }
+
+        #static-timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333; /* Измените на желаемый цвет текста */
+            text-align: center;
+            margin-top: 15px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Приветственный бонус</h2>
+            <p>+0.00146 $MASKS</p>
+            <button onclick="claimBonus()">Получить</button>
+        </div>
+    </div>
+
+    <div id="home-page">
+        <div id="static-timer">00:00:00</div>
+    </div>
+    
+    
+    <div class="content" id="mainContent">
+        <div class="leaderboard" id="leaderboard" style="display: none;">
+            <h1>Лидеры</h1>
+            <div class="player-rank">
+                <p id="userRank">Твое место: --</p>
+            </div>
+            <div class="leaderboard-info">
+                <span id="userCount">0 игроков</span>
+                <span id="top10">(Top 10)</span>
+            </div>
+            <ul id="leaderboardList"></ul>
+        </div>
+        <div class="coins">0 $MASKS</div>
+    </div>
+    <div class="navbar">
+        <button onclick="showHome()">
+            <img src="home_icon.png" alt="Домой" style="width: 30px; height: 30px;">
+        </button>
+        <button onclick="showLeaderboard()">
+            <img src="leaderboard_icon.png" alt="Таблица лидеров" style="width: 30px; height: 30px;">
+        </button>
+        <button onclick="showTasks()">
+            <img src="tasks_icon.png" alt="Задания" style="width: 30px; height: 30px;">
+        </button>
+        <button onclick="clearContent()">
+            <img src="friends_icon.png" alt="Друзья" style="width: 30px; height: 30px;">
+        </button>
+    </div>
+    
+
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let coins = 0;
+        let username = '';
+        let leaderboard = [];
+        let tasksCompleted = { /* Статус выполнения задач */ };
+        
+
+        window.onload = function() {
+        Telegram.WebApp.ready();
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            username = user.username || user.first_name;
+            const telegramId = user.id; // Получаем Telegram ID
+
+            // Добавляем игрока в базу данных, если он новый
+            fetch('/add_player', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ telegram_id: telegramId })
+            });
+        }
+        loadProgress();
+        loadLeaderboard();
+        loadTasks();
+        document.getElementById('welcomeModal').style.display = 'flex';
+        Telegram.WebApp.expand(); // Развернуть на весь экран
+    }
+
+
+        function claimBonus() {
+            coins += 0.00146;
+            document.getElementById('welcomeModal').style.display = 'none'; // Скрытие модального окна
+            saveProgress();
+            updateCoins();
+        }
+
+        function updateCoins() {
+            document.querySelector('.coins').textContent = coins + ' $MASKS';
+        }
+
+        function clearContent() {
+            document.getElementById('mainContent').innerHTML = '';
+        }
+
+        function showHome() {
+            document.getElementById('mainContent').innerHTML = '<div class="coins">' + coins + ' $MASKS</div>';
+            updateCoins();
+        }
+
+        function showLeaderboard() {
+            updateLeaderboard();
+            const totalUsers = leaderboard.length;
+            document.getElementById('mainContent').innerHTML = 
+                '<div class="leaderboard" id="leaderboard">' +
+                    '<h1>Лидеры</h1>' +
+                    '<div class="player-rank">' +
+                        '<p id="userRank">Твое место: --</p>' +
+                    '</div>' +
+                    '<div class="leaderboard-info">' +
+                        '<span id="userCount">' + totalUsers + ' ' + getPlayersText(totalUsers) + '</span>' +
+                        '<span id="top10">(Топ 10)</span>' +
+                    '</div>' +
+                    '<ul id="leaderboardList"></ul>' +
+                '</div>';
+            renderLeaderboard();
+        }
+
+       
+        
+
+        function showTasks() {
+            const advertisers = [
+                {
+                    name: 'Рекламодатель 1',
+                    tasks: [
+                        {description: 'Подпишись на Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS'},
+                        {description: 'Подпишись на Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS'},
+                        {description: 'Подпишись на YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS'}
+                    ]
+                },
+                {
+                    name: 'Рекламодатель 2',
+                    tasks: [
+                        {description: 'Подпишись на Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.00033 $MASKS'},
+                        {description: 'Подпишись на Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.00033 $MASKS'}
+                    ]
+                }
+            ];
+
+            const tasksHTML = advertisers.map(advertiser => {
+                const tasks = advertiser.tasks.map(task => {
+                    const isCompleted = tasksCompleted[task.description];
+                    return `
+                        <div class="task" style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <img src="https://via.placeholder.com/60" alt="Avatar" style="width: 60px; height: 60px; margin-right: 10px;">
+                            <div class="task-details" style="flex-grow: 1;">
+                                <div class="description" style="font-size: 14px; font-weight: bold;">${task.description}</div>
+                                <div class="reward" style="font-size: 14px; color: green; margin-top: 5px; font-weight: bold; text-align: left; margin-left: 10px;">${task.reward}</div>
+                            </div>
+                            ${isCompleted ? 
+                                `<div class="task-button completed">Done</div>` : 
+                                `<button id="button-${task.description}" class="task-button" onclick="completeTask('${task.description}', '${task.reward}')">Do</button>`
+                            }
+                        </div>
+                    `;
+                }).join('');
+                return `
+                    <div class="task-block">
+                        <h3>${advertiser.name}</h3>
+                        ${tasks}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('mainContent').innerHTML = `<div class="tasks">${tasksHTML}</div>`;
+        }
+
+        function completeTask(taskDescription, reward) {
+            const button = document.getElementById(`button-${taskDescription}`);
+            
+            if (button.innerText === "Do") {
+                button.innerText = "Check";
+            } else if (button.innerText === "Check") {
+                button.outerHTML = `<div class="task-button completed">Done</div>`;
+                if (!tasksCompleted[taskDescription]) {
+                    tasksCompleted[taskDescription] = true;
+                    addMasksToBalance(reward);
+                    saveTasks();
+                }
+            }
+        }
+
+        function addMasksToBalance(reward) {
+            const rewardValue = parseFloat(reward.match(/[\d\.]+/)[0]);
+            coins += rewardValue; // Обновляем баланс
+            saveProgress();
+            updateCoins(); // Обновляем отображение на экране
+        }
+
+
+
+        function saveTasks() {
+            localStorage.setItem('tasksCompleted', JSON.stringify(tasksCompleted));
+        }
+
+        function loadTasks() {
+            tasksCompleted = JSON.parse(localStorage.getItem('tasksCompleted')) || {};
+        }
+
+        // Загружаем сохранённые данные при загрузке страницы
+        window.onload = function() {
+            Telegram.WebApp.ready();
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                username = user.username || user.first_name;
+            }
+            loadProgress();
+            loadLeaderboard();
+            loadTasks();
+            Telegram.WebApp.expand(); // Развернуть на весь экран
+            showHome(); // Показываем вкладку "Домой" при загрузке
+        }
+
+
+
+        function updateLeaderboard() {
+            const userEntry = leaderboard.find(entry => entry.username === username);
+            if (userEntry) {
+                userEntry.coins = coins;
+            } else {
+                leaderboard.push({ username: username, coins: coins });
+            }
+            leaderboard.sort((a, b) => b.coins - a.coins);
+            saveLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            const userRankElem = document.getElementById('userRank');
+            leaderboardList.innerHTML = '';
+            let userRank = null;
+            
+            leaderboard.forEach((entry, index) => {
+                if (index >= 10) return;
+                const li = document.createElement('li');
+                const rank = index + 1;
+                const rankText = rank <= 3 ? (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉') : `#${rank}`;
+                
+                // Создание аватарки
+                const avatar = document.createElement('div');
+                avatar.className = 'avatar';
+                avatar.style.backgroundColor = getRandomColor(); // Функция для получения случайного цвета
+                avatar.textContent = entry.username.substring(0, 2);
+                
+                // Добавление медальки и аватарки с отступом
+                li.innerHTML = `<span class="rank">${rankText}</span>`;
+                li.appendChild(avatar);
+                li.innerHTML += `<span>${entry.username}</span><span>${entry.coins} $MASKS</span>`;
+                leaderboardList.appendChild(li);
+                
+                if (entry.username === username) {
+                    userRank = rank;
+                }
+            });
+            
+            // Если игрок не в топ-10, находим его место в общем списке
+            if (userRank === null) {
+                const overallRank = leaderboard.findIndex(entry => entry.username === username) + 1;
+                userRankElem.textContent = 'Твое место: ' + (overallRank ? overallRank : '--');
+            } else {
+                userRankElem.textContent = 'Твое место: ' + userRank;
+            }
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function getPlayersText(count) {
+            if (count === 1) {
+                return 'игрок';
+            } else if (count > 1 && count < 5) {
+                return 'игрока';
+            } else {
+                return 'игроков';
+            }
+        }
+
+        function joinTelegramChannel(url) {
+            window.open(url, '_blank');
+            // После подписки добавьте логику для проверки выполнения задания
+            // Пример:
+            // tasksCompleted[url] = true;
+            // updateTaskStatuses();
+        }
+
+        function saveProgress() {
+            localStorage.setItem('coins', coins);
+        }
+
+        function loadProgress() {
+            coins = parseInt(localStorage.getItem('coins')) || 0;
+            updateCoins();
+        }
+
+        function saveLeaderboard() {
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        }
+
+        function loadLeaderboard() {
+            leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        }
+
+        // Установка времени начала и окончания таймера
+        const startTime = new Date('2024-10-06T12:15:00+03:00').getTime(); // Установите начальное время
+        const timerDuration = 31 * 24 * 60 * 60 * 1000; // 31 день в миллисекундах
+        const endTime = startTime + timerDuration; // Рассчитываем время окончания
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const remainingTime = endTime - now;
+
+            if (remainingTime < 0) {
+                document.getElementById("static-timer").innerHTML = "Время истекло!";
+                return; // Завершаем, если время истекло
+            }
+
+            // Рассчитываем дни, часы, минуты и секунды
+            const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+
+
+            
+
+            // Обновляем таймер на странице
+            document.getElementById("static-timer").innerHTML = 
+                `${days}:${hours}:${minutes}`;
+        }
+
+        // Обновляем таймер каждую секунду
+        setInterval(updateTimer, 1000);
+
+
+    </script>
+</body>
+</html>
