@@ -364,6 +364,14 @@
         });
     </script> -->
 
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Приветственный бонус</h2>
+            <p>+0.00146 $MASKS</p>
+            <button onclick="claimBonus()">Получить</button>
+        </div>
+    </div>
+
     <div id="home-page">
         <div id="static-timer">00:00:00</div>
     </div>
@@ -406,7 +414,6 @@
         let username = '';
         let leaderboard = [];
 
-                // Загружаем сохранённые данные при загрузке страницы
         window.onload = function() {
             Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
@@ -414,15 +421,15 @@
                 username = user.username || user.first_name;
             }
             loadProgress();
-            if (coins === 0) {
-                coins += 0.00146; // Начисление приветственного бонуса
-                saveProgress(); // Сохранение прогресса
-                updateCoins(); // Обновление отображения баланса
-            }
-            loadLeaderboard();
-            loadTasks();
+            document.getElementById('welcomeModal').style.display = 'flex';
             Telegram.WebApp.expand(); // Развернуть на весь экран
-            showHome(); // Показываем вкладку "Домой" при загрузке
+        }
+
+        function claimBonus() {
+            coins += 0.00146;
+            document.getElementById('welcomeModal').style.display = 'none';
+            saveProgress();
+            updateCoins();
         }
 
         function updateCoins() {
@@ -538,7 +545,19 @@
             tasksCompleted = JSON.parse(localStorage.getItem('tasksCompleted')) || {};
         }
 
-
+        // Загружаем сохранённые данные при загрузке страницы
+        window.onload = function() {
+            Telegram.WebApp.ready();
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                username = user.username || user.first_name;
+            }
+            loadProgress();
+            loadLeaderboard();
+            loadTasks();
+            Telegram.WebApp.expand(); // Развернуть на весь экран
+            showHome(); // Показываем вкладку "Домой" при загрузке
+        }
 
 
 
@@ -628,6 +647,11 @@
                 coins = parseInt(savedCoins, 10);
                 updateCoins();
             }
+        }
+
+        function loadProgress() {
+            coins = parseFloat(localStorage.getItem('coins')) || 0;
+            updateCoins();
         }
 
         function saveLeaderboard() {
