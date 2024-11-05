@@ -649,6 +649,11 @@
             }
         }
 
+        function loadProgress() {
+            coins = parseFloat(localStorage.getItem('coins')) || 0;
+            updateCoins();
+        }
+
         function saveLeaderboard() {
             localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
         }
