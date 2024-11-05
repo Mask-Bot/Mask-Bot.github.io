@@ -413,33 +413,45 @@
         let coins = 0;
         let username = '';
         let leaderboard = [];
-        let tasksCompleted = { /* Статус выполнения задач */ };
-        
+        let tasksCompleted = {}; // Статус выполнения задач
 
         window.onload = function() {
-        Telegram.WebApp.ready();
-        const user = Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            username = user.username || user.first_name;
-            const telegramId = user.id; // Получаем Telegram ID
+            Telegram.WebApp.ready();
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                username = user.username || user.first_name;
+                const telegramId = user.id; // Получаем Telegram ID
 
-            const serverUrl = 'http://127.0.0.1:5000';
+                // Добавляем игрока в базу данных, если он новый
+                fetch('http://localhost:5000/add_player', { // Измените URL на ваш при развертывании
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ player_id: telegramId }) // Используем player_id
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Ошибка при добавлении игрока');
+                    }
+                })
+                .then(data => {
+                    console.log(data.message); // Успешное добавление
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error); // Обработка ошибок
+                });
+            }
+            
+            loadProgress();
+            loadLeaderboard();
+            loadTasks();
+            document.getElementById('welcomeModal').style.display = 'flex';
+            Telegram.WebApp.expand(); // Развернуть на весь экран
+        };
 
-            // Добавляем игрока в базу данных, если он новый
-            fetch('/add_player', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ telegram_id: telegramId })
-            });
-        }
-        loadProgress();
-        loadLeaderboard();
-        loadTasks();
-        document.getElementById('welcomeModal').style.display = 'flex';
-        Telegram.WebApp.expand(); // Развернуть на весь экран
-    }
 
 
         function claimBonus() {
@@ -758,39 +770,6 @@
             // Привязываем функцию разблокировки к кнопке
             document.getElementById('unlockButton').onclick = unlockWallet;
         }
-
-        const fs = require('fs');
-
-        // Функция для создания нового игрока
-        function createNewPlayer(tgId, initialBalance) {
-            const playerData = {
-                tgId: tgId,
-                balance: initialBalance
-            };
-
-            // Сохранение данных в JSON файл
-            fs.writeFile(`player_${tgId}.json`, JSON.stringify(playerData), (err) => {
-                if (err) {
-                    console.error('Ошибка при создании файла:', err);
-                } else {
-                    console.log(`Файл для игрока с ID ${tgId} успешно создан!`);
-                }
-            });
-        }
-
-        // Пример функции для обработки нового игрока
-        function onNewPlayer(tgId) {
-            const initialBalance = 100; // Начальный баланс
-            createNewPlayer(tgId, initialBalance);
-
-            // Остальная логика для нового игрока
-            // ...
-        }
-
-        // Пример вызова функции при новом игроке
-        const tgId = '853440275'; // Здесь должен быть ID нового игрока
-        onNewPlayer(tgId);
-
         
 
     </script>
