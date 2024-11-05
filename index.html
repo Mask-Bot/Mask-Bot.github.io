@@ -410,65 +410,30 @@
 
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Пример для добавления игрока
-        fetch('https://0f0e-176-110-103-46.ngrok-free.app/add_player', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ telegram_id: telegramId })
-        });
-
-        // Пример для обновления баланса
-        fetch(`https://0f0e-176-110-103-46.ngrok-free.app/update_balance/${telegramId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ amount: coins })
-        });
-
         let coins = 0;
         let username = '';
-        let telegramId = user.id; // Получаем Telegram ID
         let leaderboard = [];
-        let tasksCompleted = { /* Статус выполнения задач */ };
-        
 
         window.onload = function() {
-        Telegram.WebApp.ready();
-        const user = Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            username = user.username || user.first_name;
-            const telegramId = user.id; // Получаем Telegram ID
-
-            // Добавляем игрока в базу данных, если он новый
-            fetch('/add_player', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ telegram_id: telegramId })
-            });
+            Telegram.WebApp.ready();
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                username = user.username || user.first_name;
+            }
+            loadProgress();
+            document.getElementById('welcomeModal').style.display = 'flex';
+            Telegram.WebApp.expand(); // Развернуть на весь экран
         }
-        loadProgress();
-        loadLeaderboard();
-        loadTasks();
-        document.getElementById('welcomeModal').style.display = 'flex';
-        Telegram.WebApp.expand(); // Развернуть на весь экран
-    }
-
 
         function claimBonus() {
             coins += 0.00146;
-            document.getElementById('welcomeModal').style.display = 'none'; // Скрытие модального окна
+            document.getElementById('welcomeModal').style.display = 'none';
+            saveProgress();
             updateCoins();
-            saveProgress(); // Сохраняем прогресс после увеличения монет
         }
 
-
         function updateCoins() {
-            document.querySelector('.coins').textContent = coins + ' $MASKS';
+            document.querySelector('.coins').textContent = coins + ' MASKS';
         }
 
         function clearContent() {
@@ -673,20 +638,15 @@
         }
 
         function saveProgress() {
-            // Отправляем обновленный баланс на сервер
-            fetch(`/update_balance/${telegramId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ amount: coins })
-            });
+            localStorage.setItem('coins', coins);
         }
 
-
         function loadProgress() {
-            coins = parseInt(localStorage.getItem('coins')) || 0;
-            updateCoins();
+            const savedCoins = localStorage.getItem('coins');
+            if (savedCoins !== null) {
+                coins = parseInt(savedCoins, 10);
+                updateCoins();
+            }
         }
 
         function saveLeaderboard() {
