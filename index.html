@@ -410,56 +410,62 @@
 
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Пример для добавления игрока
+        fetch('https://0f0e-176-110-103-46.ngrok-free.app/add_player', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ telegram_id: telegramId })
+        });
+
+        // Пример для обновления баланса
+        fetch(`https://0f0e-176-110-103-46.ngrok-free.app/update_balance/${telegramId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: coins })
+        });
+
         let coins = 0;
         let username = '';
+        let telegramId = user.id; // Получаем Telegram ID
         let leaderboard = [];
-        let tasksCompleted = {}; // Статус выполнения задач
+        let tasksCompleted = { /* Статус выполнения задач */ };
+        
 
         window.onload = function() {
-            Telegram.WebApp.ready();
-            const user = Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                username = user.username || user.first_name;
-                const telegramId = user.id; // Получаем Telegram ID
+        Telegram.WebApp.ready();
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            username = user.username || user.first_name;
+            const telegramId = user.id; // Получаем Telegram ID
 
-                // Добавляем игрока в базу данных, если он новый
-                fetch('http://localhost:5000/add_player', { // Измените URL на ваш при развертывании
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ player_id: telegramId }) // Используем player_id
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Ошибка при добавлении игрока');
-                    }
-                })
-                .then(data => {
-                    console.log(data.message); // Успешное добавление
-                })
-                .catch(error => {
-                    console.error('Ошибка:', error); // Обработка ошибок
-                });
-            }
-            
-            loadProgress();
-            loadLeaderboard();
-            loadTasks();
-            document.getElementById('welcomeModal').style.display = 'flex';
-            Telegram.WebApp.expand(); // Развернуть на весь экран
-        };
-
+            // Добавляем игрока в базу данных, если он новый
+            fetch('/add_player', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ telegram_id: telegramId })
+            });
+        }
+        loadProgress();
+        loadLeaderboard();
+        loadTasks();
+        document.getElementById('welcomeModal').style.display = 'flex';
+        Telegram.WebApp.expand(); // Развернуть на весь экран
+    }
 
 
         function claimBonus() {
             coins += 0.00146;
             document.getElementById('welcomeModal').style.display = 'none'; // Скрытие модального окна
-            saveProgress();
             updateCoins();
+            saveProgress(); // Сохраняем прогресс после увеличения монет
         }
+
 
         function updateCoins() {
             document.querySelector('.coins').textContent = coins + ' $MASKS';
@@ -667,8 +673,16 @@
         }
 
         function saveProgress() {
-            localStorage.setItem('coins', coins);
+            // Отправляем обновленный баланс на сервер
+            fetch(`/update_balance/${telegramId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ amount: coins })
+            });
         }
+
 
         function loadProgress() {
             coins = parseInt(localStorage.getItem('coins')) || 0;
