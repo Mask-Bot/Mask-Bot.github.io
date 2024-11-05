@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -366,9 +365,9 @@
 
     <div id="welcomeModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <h2>Приветственный бонус</h2>
+            <h2>Welcome Bonus</h2>
             <p>+0.00146 $MASKS</p>
-            <button onclick="claimBonus()">Получить</button>
+            <button onclick="claimBonus()">Get</button>
         </div>
     </div>
     
@@ -379,12 +378,12 @@
     
     <div class="content" id="mainContent">
         <div class="leaderboard" id="leaderboard" style="display: none;">
-            <h1>Лидеры</h1>
+            <h1>Leaders</h1>
             <div class="player-rank">
-                <p id="userRank">Твое место: --</p>
+                <p id="userRank">Your place: --</p>
             </div>
             <div class="leaderboard-info">
-                <span id="userCount">0 игроков</span>
+                <span id="userCount">0 players</span>
                 <span id="top10">(Top 10)</span>
             </div>
             <ul id="leaderboardList"></ul>
@@ -416,6 +415,7 @@
         let leaderboard = [];
 
         window.onload = function() {
+            Telegram.WebApp.expand(); // Развернуть на весь экран
             Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
@@ -423,7 +423,6 @@
             }
             loadProgress();
             document.getElementById('welcomeModal').style.display = 'flex';
-            Telegram.WebApp.expand(); // Развернуть на весь экран
         }
 
         // Функция для показа модального окна с бонусом
@@ -439,7 +438,7 @@
         function claimBonus() {
             // Проверяем, получил ли пользователь уже бонус
             if (localStorage.getItem('bonusClaimed')) {
-                alert('Вы уже получили приветственный бонус!');
+                alert('You have already received your welcome bonus!');
                 return; // Выходим из функции, если бонус уже был получен
             }
 
@@ -457,10 +456,8 @@
         window.onload = showWelcomeBonusModal;
 
 
-
-
         function updateCoins() {
-            document.querySelector('.coins').textContent = coins + ' MASKS';
+            document.querySelector('.coins').textContent = coins + ' $MASKS';
         }
 
         function clearContent() {
@@ -477,13 +474,13 @@
             const totalUsers = leaderboard.length;
             document.getElementById('mainContent').innerHTML = 
                 '<div class="leaderboard" id="leaderboard">' +
-                    '<h1>Лидеры</h1>' +
+                    '<h1>Leaders</h1>' +
                     '<div class="player-rank">' +
-                        '<p id="userRank">Твое место: --</p>' +
+                        '<p id="userRank">Your place: --</p>' +
                     '</div>' +
                     '<div class="leaderboard-info">' +
                         '<span id="userCount">' + totalUsers + ' ' + getPlayersText(totalUsers) + '</span>' +
-                        '<span id="top10">(Топ 10)</span>' +
+                        '<span id="top10">(Top 10)</span>' +
                     '</div>' +
                     '<ul id="leaderboardList"></ul>' +
                 '</div>';
@@ -498,16 +495,16 @@
                 {
                     name: 'Рекламодатель 1',
                     tasks: [
-                        {description: 'Подпишись на Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS'},
-                        {description: 'Подпишись на Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS'},
-                        {description: 'Подпишись на YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS'}
+                        {description: 'Subscribe to Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS'},
+                        {description: 'Subscribe to Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS'},
+                        {description: 'Subscribe to YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS'}
                     ]
                 },
                 {
                     name: 'Рекламодатель 2',
                     tasks: [
-                        {description: 'Подпишись на Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.00033 $MASKS'},
-                        {description: 'Подпишись на Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.00033 $MASKS'}
+                        {description: 'Subscribe to Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.00033 $MASKS'},
+                        {description: 'Subscribe to Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.00033 $MASKS'}
                     ]
                 }
             ];
@@ -631,9 +628,9 @@
             // Если игрок не в топ-10, находим его место в общем списке
             if (userRank === null) {
                 const overallRank = leaderboard.findIndex(entry => entry.username === username) + 1;
-                userRankElem.textContent = 'Твое место: ' + (overallRank ? overallRank : '--');
+                userRankElem.textContent = 'Your place: ' + (overallRank ? overallRank : '--');
             } else {
-                userRankElem.textContent = 'Твое место: ' + userRank;
+                userRankElem.textContent = 'Your place: ' + userRank;
             }
         }
 
@@ -648,13 +645,12 @@
 
         function getPlayersText(count) {
             if (count === 1) {
-                return 'игрок';
-            } else if (count > 1 && count < 5) {
-                return 'игрока';
+                return 'player';
             } else {
-                return 'игроков';
+                return 'players';
             }
         }
+
 
         function joinTelegramChannel(url) {
             window.open(url, '_blank');
@@ -691,15 +687,14 @@
 
         // Установка времени начала и окончания таймера
         const startTime = new Date('2024-10-06T12:15:00+03:00').getTime(); // Установите начальное время
-        const timerDuration = 31 * 24 * 60 * 60 * 1000; // 31 день в миллисекундах
-        const endTime = startTime + timerDuration; // Рассчитываем время окончания
+        const endTime = new Date('2025-01-01T00:00:00Z').getTime();
 
         function updateTimer() {
             const now = new Date().getTime();
             const remainingTime = endTime - now;
 
             if (remainingTime < 0) {
-                document.getElementById("static-timer").innerHTML = "Время истекло!";
+                document.getElementById("static-timer").innerHTML = "00:00:00";
                 return; // Завершаем, если время истекло
             }
 
