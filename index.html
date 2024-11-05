@@ -423,6 +423,8 @@
             username = user.username || user.first_name;
             const telegramId = user.id; // Получаем Telegram ID
 
+            const serverUrl = 'http://127.0.0.1:5000';
+
             // Добавляем игрока в базу данных, если он новый
             fetch('/add_player', {
                 method: 'POST',
