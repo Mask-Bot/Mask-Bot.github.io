@@ -364,13 +364,14 @@
         });
     </script> -->
 
-    <div id="welcomeModal" class="modal">
+    <div id="welcomeModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h2>Приветственный бонус</h2>
             <p>+0.00146 $MASKS</p>
             <button onclick="claimBonus()">Получить</button>
         </div>
     </div>
+    
 
     <div id="home-page">
         <div id="static-timer">00:00:00</div>
@@ -425,12 +426,38 @@
             Telegram.WebApp.expand(); // Развернуть на весь экран
         }
 
+        // Функция для показа модального окна с бонусом
+        function showWelcomeBonusModal() {
+            // Проверяем, получил ли пользователь уже бонус
+            if (!localStorage.getItem('bonusClaimed')) {
+                // Показываем модальное окно, если бонус еще не был получен
+                document.getElementById('welcomeModal').style.display = 'block';
+            }
+        }
+
+        // Функция для получения бонуса
         function claimBonus() {
+            // Проверяем, получил ли пользователь уже бонус
+            if (localStorage.getItem('bonusClaimed')) {
+                alert('Вы уже получили приветственный бонус!');
+                return; // Выходим из функции, если бонус уже был получен
+            }
+
+            // Если бонус еще не был получен, добавляем его
             coins += 0.00146;
             document.getElementById('welcomeModal').style.display = 'none';
             saveProgress();
             updateCoins();
+            
+            // Сохраняем информацию о том, что бонус был получен
+            localStorage.setItem('bonusClaimed', 'true');
         }
+
+        // Вызываем функцию показа бонуса при загрузке страницы
+        window.onload = showWelcomeBonusModal;
+
+
+
 
         function updateCoins() {
             document.querySelector('.coins').textContent = coins + ' MASKS';
