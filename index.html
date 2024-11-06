@@ -828,7 +828,7 @@
                         });
 
                         // После успешной отправки транзакции начисляем $MASKS
-                        addMasksToBalance(reward);
+                        addMasksToBalance(rewardValue);
                         alert(`Donation of ${amount} TON sent successfully! You received ${reward} $MASKS.`);
                     } catch (error) {
                         alert('Error sending donation: ' + error.message);
