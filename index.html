@@ -271,15 +271,15 @@
             padding-bottom: 66px;
         }
         .task-block {
-            background: rgba(255, 255, 255, 0.9);
-            color: #000;
+            background: #272727;
+            color: #fefefe;
             padding: 15px;
             border-radius: 10px;
             margin: 20px auto;
             text-align: center;
-            width: 90%;
+            width: 300px;
             position:relative;
-            border: 1px solid #ddd;
+            border: 1px solid #272727;
         }
         .task-block h3 {
             margin-top: 0;
@@ -290,7 +290,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 20px 32px;
+            background-color: #3d3d3d;
+            border-radius: 10px;
+            margin-left: -7.5px;
+            width: 250px;
         }
         .task img {
             width: 40px;
@@ -301,7 +305,7 @@
         .task-button {
             padding: 10px 20px;
             font-size: 14px;
-            background-color: #000;
+            background-color: #181818;
             color: #fff;
             border: none;
             cursor: pointer;
@@ -311,7 +315,7 @@
         }
 
         .task-button.completed {
-            background-color: #414141;
+            background-color: #282828;
             color: rgb(255, 255, 255);
             border: none;
             width: 60px; /* та же ширина, что и у кнопки */
@@ -323,15 +327,13 @@
         }
 
         .task-button:disabled {
-            background-color: #666;
+            background-color: #282828;
             cursor: not-allowed;
         }
 
-
-
         .task .status {
             font-size: 18px;
-            color: green;
+            color: rgb(0, 202, 0);
         }
         .task .status.hidden {
             display: none;
@@ -342,6 +344,41 @@
             padding-left: 10px;
             font-size: 16px;
         }
+
+        .donate-block {
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            text-align: center;
+            width: 90%;
+            position: relative;
+            border: 1px solid #ddd;
+        }
+
+        .donate-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100px; /* фиксированная ширина для кнопок */
+            text-align: center;
+            margin: 5px;
+        }
+
+        .donate-button:hover {
+            background-color: #444;
+        }
+
+        .donate-button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
 
         #static-timer {
             font-size: 48px;
@@ -488,26 +525,35 @@
         }
 
        
-        
-
         function showTasks() {
             const advertisers = [
                 {
-                    name: 'Рекламодатель 1',
+                    name: 'Tasks for $MASKS',
                     tasks: [
                         {description: 'Subscribe to Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS'},
                         {description: 'Subscribe to Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS'},
                         {description: 'Subscribe to YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS'}
                     ]
-                },
-                {
-                    name: 'Рекламодатель 2',
-                    tasks: [
-                        {description: 'Subscribe to Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.00033 $MASKS'},
-                        {description: 'Subscribe to Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.00033 $MASKS'}
-                    ]
                 }
             ];
+
+            // Добавляем кнопки донатов перед задачами
+            const donateButtonsHTML = `
+                <div id="donateButtons" style="margin-top: 20px;">
+                    <button class="donateButton" data-amount="0.3" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        Donate 0.3 TON
+                    </button>
+                    <button class="donateButton" data-amount="0.5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        Donate 0.5 TON
+                    </button>
+                    <button class="donateButton" data-amount="1" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        Donate 1 TON
+                    </button>
+                    <button class="donateButton" data-amount="5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        Donate 5 TON
+                    </button>
+                </div>
+            `;
 
             const tasksHTML = advertisers.map(advertiser => {
                 const tasks = advertiser.tasks.map(task => {
@@ -534,24 +580,70 @@
                 `;
             }).join('');
 
-            document.getElementById('mainContent').innerHTML = `<div class="tasks">${tasksHTML}</div>`;
+            document.getElementById('mainContent').innerHTML = `
+                <div class="tasks">
+                    ${donateButtonsHTML}  <!-- Добавляем кнопки донатов перед задачами -->
+                    ${tasksHTML}
+                </div>
+            `;
         }
 
-        function completeTask(taskDescription, reward) {
-            const button = document.getElementById(`button-${taskDescription}`);
-            
-            if (button.innerText === "Do") {
-                button.innerText = "Check";
-            } else if (button.innerText === "Check") {
-                button.outerHTML = `<div class="task-button completed">Done</div>`;
-                if (!tasksCompleted[taskDescription]) {
-                    tasksCompleted[taskDescription] = true;
-                    addMasksToBalance(reward);
-                    saveTasks();
-                }
-            }
+        // Функция для выполнения задачи
+        function completeTask(description, reward) {
+            tasksCompleted[description] = true;
+            alert(`You completed the task: ${description} and earned ${reward}`);
+            showTasks(); // Обновляем страницу после выполнения задачи
         }
-        
+
+        // Обработчик донатов
+        document.querySelectorAll('.donateButton').forEach(button => {
+            button.onclick = async () => {
+                const amount = button.getAttribute('data-amount');
+                let nanocoinsAmount, rewardValue;
+
+                switch (amount) {
+                    case '0.3':
+                        nanocoinsAmount = '30000'; // 0.3 TON
+                        rewardValue = 0.000147; // $MASKS за 0.3 TON
+                        break;
+                    case '0.5':
+                        nanocoinsAmount = '5000000'; // 0.5 TON
+                        rewardValue = 0.000399; // $MASKS за 0.5 TON
+                        break;
+                    case '1':
+                        nanocoinsAmount = '10000000'; // 1 TON
+                        rewardValue = 0.000950; // $MASKS за 1 TON
+                        break;
+                    case '5':
+                        nanocoinsAmount = '50000000'; // 5 TON
+                        rewardValue = 0.0021; // $MASKS за 5 TON
+                        break;
+                    default:
+                        alert('Invalid donation amount');
+                        return;
+                }
+
+                try {
+                    const tx = await tonConnectUI.sendTransaction({
+                        validUntil: Math.floor(Date.now() / 1000) + 600, // Время жизни транзакции (10 минут)
+                        messages: [
+                            {
+                                address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
+                                amount: nanocoinsAmount,
+                                payload: '',
+                            }
+                        ]
+                    });
+
+                    // После успешной отправки транзакции начисляем $MASKS
+                    addMasksToBalance(rewardValue);
+                    alert(`Donation of ${amount} TON sent successfully! You received ${rewardValue} $MASKS.`);
+                } catch (error) {
+                    alert('Error sending donation: ' + error.message);
+                }
+            };
+        });
+
         function addMasksToBalance(reward) {
             const rewardValue = parseFloat(reward);  // Непосредственно используем числовое значение
             coins += rewardValue; // Обновляем баланс
@@ -567,6 +659,7 @@
         function loadTasks() {
             tasksCompleted = JSON.parse(localStorage.getItem('tasksCompleted')) || {};
         }
+
 
         // Загружаем сохранённые данные при загрузке страницы
         window.onload = function() {
@@ -768,7 +861,7 @@
                         messages: [
                             {
                                 address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
-                                amount: '100000000', // 0.5 TON (в нанокоинах)
+                                amount: '500000000', // 0.5 TON (в нанокоинах)
                                 payload: '',
                             }
                         ]
@@ -795,19 +888,19 @@
 
                     switch (amount) {
                         case '0.3':
-                            nanocoinsAmount = '30000'; // 0.3 TON
+                            nanocoinsAmount = '30000000'; // 0.3 TON
                             rewardValue = 0.000147; // $MASKS за 0.3 TON
                             break;
                         case '0.5':
-                            nanocoinsAmount = '5000000'; // 0.5 TON
+                            nanocoinsAmount = '500000000'; // 0.5 TON
                             rewardValue = 0.000399; // $MASKS за 0.5 TON
                             break;
                         case '1':
-                            nanocoinsAmount = '10000000'; // 1 TON
+                            nanocoinsAmount = '1000000000'; // 1 TON
                             rewardValue = 0.000950; // $MASKS за 1 TON
                             break;
                         case '5':
-                            nanocoinsAmount = '50000000'; // 5 TON
+                            nanocoinsAmount = '5000000000'; // 5 TON
                             rewardValue = 0.0021; // $MASKS за 5 TON
                             break;
                         default:
@@ -829,21 +922,13 @@
 
                         // После успешной отправки транзакции начисляем $MASKS
                         addMasksToBalance(rewardValue);
-                        alert(`Donation of ${amount} TON sent successfully! You received ${reward} $MASKS.`);
+                        alert(`Donation of ${amount} TON sent successfully! You received ${rewardValue} $MASKS.`);
                     } catch (error) {
                         alert('Error sending donation: ' + error.message);
                     }
                 };
             });
-
-
-
         }
-
-
-
-
-        
 
     </script>
 </body>
