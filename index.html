@@ -589,9 +589,19 @@
         }
 
         // Функция для выполнения задачи
-        function completeTask(description, reward) {
-            tasksCompleted[description] = true;
-            showTasks(); // Обновляем страницу после выполнения задачи
+        function completeTask(taskDescription, reward) {
+            const button = document.getElementById(`button-${taskDescription}`);
+            
+            if (button.innerText === "Do") {
+                button.innerText = "Check";
+            } else if (button.innerText === "Check") {
+                button.outerHTML = `<div class="task-button completed">Done</div>`;
+                if (!tasksCompleted[taskDescription]) {
+                    tasksCompleted[taskDescription] = true;
+                    addMasksToBalance(reward);
+                    saveTasks();
+                }
+            }
         }
 
         // Обработчик донатов
