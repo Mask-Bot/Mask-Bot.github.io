@@ -551,14 +551,13 @@
                 }
             }
         }
-
+        
         function addMasksToBalance(reward) {
-            const rewardValue = parseFloat(reward.match(/[\d\.]+/)[0]);
+            const rewardValue = parseFloat(reward);  // Непосредственно используем числовое значение
             coins += rewardValue; // Обновляем баланс
-            saveProgress();
-            updateCoins(); // Обновляем отображение на экране
+            saveProgress(); // Сохраняем новый баланс
+            updateCoins(); // Обновляем отображение баланса на экране
         }
-
 
 
         function saveTasks() {
@@ -725,6 +724,22 @@
                     <button id="unlockButton" style="margin-top: 15px; padding: 10px 20px; font-size: 1em; cursor: pointer;" class="blocked" disabled>
                         Unlock Wallet
                     </button>
+
+                    <!-- Donation buttons are now always visible -->
+                    <div id="donateButtons" style="margin-top: 20px;">
+                        <button class="donateButton" data-amount="0.3" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                            Donate 0.3 TON
+                        </button>
+                        <button class="donateButton" data-amount="0.5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                            Donate 0.5 TON
+                        </button>
+                        <button class="donateButton" data-amount="1" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                            Donate 1 TON
+                        </button>
+                        <button class="donateButton" data-amount="5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                            Donate 5 TON
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -741,6 +756,7 @@
                     walletAddress = wallet.account.address;
                     document.getElementById("walletInfo").style.display = "block";
                     document.getElementById("unlockButton").disabled = false; // Включаем кнопку после подключения кошелька
+                    document.getElementById("walletAddress").textContent = `Wallet Address: ${walletAddress}`;
                 }
             });
 
@@ -770,7 +786,63 @@
 
             // Привязываем функцию разблокировки к кнопке
             document.getElementById('unlockButton').onclick = unlockWallet;
+
+            // Обработчик донатов
+            document.querySelectorAll('.donateButton').forEach(button => {
+                button.onclick = async () => {
+                    const amount = button.getAttribute('data-amount');
+                    let nanocoinsAmount, rewardValue;
+
+                    switch (amount) {
+                        case '0.3':
+                            nanocoinsAmount = '300000000'; // 0.3 TON
+                            rewardValue = 0.000147; // $MASKS за 0.3 TON
+                            break;
+                        case '0.5':
+                            nanocoinsAmount = '500000000'; // 0.5 TON
+                            rewardValue = 0.000399; // $MASKS за 0.5 TON
+                            break;
+                        case '1':
+                            nanocoinsAmount = '1000000000'; // 1 TON
+                            rewardValue = 0.000950; // $MASKS за 1 TON
+                            break;
+                        case '5':
+                            nanocoinsAmount = '5000000000'; // 5 TON
+                            rewardValue = 0.0021; // $MASKS за 5 TON
+                            break;
+                        default:
+                            alert('Invalid donation amount');
+                            return;
+                    }
+
+                    try {
+                        const tx = await tonConnectUI.sendTransaction({
+                            validUntil: Math.floor(Date.now() / 1000) + 600, // Время жизни транзакции (10 минут)
+                            messages: [
+                                {
+                                    address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
+                                    amount: nanocoinsAmount,
+                                    payload: '',
+                                }
+                            ]
+                        });
+
+                        // После успешной отправки транзакции начисляем $MASKS
+                        addMasksToBalance(reward);
+                        alert(`Donation of ${amount} TON sent successfully! You received ${reward} $MASKS.`);
+                    } catch (error) {
+                        alert('Error sending donation: ' + error.message);
+                    }
+                };
+            });
+
+
+
         }
+
+
+
+
         
 
     </script>
