@@ -132,7 +132,7 @@
         }
         .leaderboard {
             text-align: center;
-            margin-top: 2px;
+            margin-top: -50px;
             padding: 20px;
             border-radius: 10px;
             background: none; /* Удаление фона */
@@ -178,9 +178,10 @@
             margin: 0;
             width: 100%; /* Растянуть на всю ширину экрана */
             box-sizing: border-box; /* Учитывать padding и border в ширине элемента */
+            margin: 0 0 100px 0;
         }
         .leaderboard li {
-            background: rgba(255, 255, 255, 0.5); /* Белый полупрозрачный фон */
+            background: rgba(255, 255, 255, 0.788); /* Белый полупрозрачный фон */
             color: #000; /* Черный текст */
             padding: 10px;
             margin: 5px 0;
@@ -461,10 +462,6 @@
             <div class="player-rank">
                 <p id="userRank">Your place: --</p>
             </div>
-            <div class="leaderboard-info">
-                <span id="userCount">0 players</span>
-                <span id="top10">(Top 10)</span>
-            </div>
             <ul id="leaderboardList"></ul>
         </div>
         <div class="coins">0 $MASKS</div>
@@ -494,9 +491,8 @@
         let leaderboard = [];
 
         window.onload = function() {
-            Telegram.WebApp.ready();
             Telegram.WebApp.expand(); // Развернуть на весь экран
-            
+            Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 username = user.username || user.first_name;
@@ -703,8 +699,6 @@
                         '<p id="userRank">Your place: --</p>' +
                     '</div>' +
                     '<div class="leaderboard-info">' +
-                        '<span id="userCount">' + totalUsers + ' ' + getPlayersText(totalUsers) + '</span>' +
-                        '<span id="top10">(Top 10)</span>' +
                     '</div>' +
                     '<ul id="leaderboardList"></ul>' +
                 '</div>';
@@ -865,16 +859,50 @@
             });
         }
 
+        // Загружаем сохранённые данные при загрузке страницы
+        window.onload = function() {
+            Telegram.WebApp.ready();
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                username = user.username || user.first_name;
+            }
+            loadProgress();
+            loadLeaderboard();
+            loadTasks();
+            Telegram.WebApp.expand(); // Развернуть на весь экран
+            showHome(); // Показываем вкладку "Домой" при загрузке
+        }
+
 
 
         function updateLeaderboard() {
-            const userEntry = leaderboard.find(entry => entry.username === username);
-            if (userEntry) {
-                userEntry.coins = coins;
-            } else {
-                leaderboard.push({ username: username, coins: coins });
-            }
+            leaderboard = leaderboard.filter(entry => entry.username !== 'Петя');
+            // Статичные игроки
+            const staticPlayers = [
+                { username: 'Tam°°°', coins: 0.42844364 },
+                { username: 'Dizano', coins: 0.31714607 },
+                { username: 'DavaidF', coins: 0.22138812 },
+                { username: 'Mohammed Rizza', coins: 0.21293022 },
+                { username: 'Gtes', coins: 0.18542956 },
+                { username: 'Игрок 6', coins: 0.18248886 },
+                { username: 'Игрок 7', coins: 0.17745257 },
+                { username: 'Игрок 8', coins: 0.17520161 },
+                { username: 'Игрок 9', coins: 0.16580244 },
+                { username: 'Игрок 10', coins: 0.16290011 }
+            ];
+
+            // Добавляем статичных игроков в лидерборд, если их там нет
+            staticPlayers.forEach(player => {
+                const existingPlayer = leaderboard.find(entry => entry.username === player.username);
+                if (!existingPlayer) {
+                    leaderboard.push(player);
+                }
+            });
+
+            // Сортируем остальной список по убыванию
             leaderboard.sort((a, b) => b.coins - a.coins);
+
+            // Сохраняем лидерборд
             saveLeaderboard();
         }
 
@@ -883,32 +911,32 @@
             const userRankElem = document.getElementById('userRank');
             leaderboardList.innerHTML = '';
             let userRank = null;
-            
-            leaderboard.forEach((entry, index) => {
-                if (index >= 10) return;
+
+            // Отфильтровываем текущего игрока из топ-10
+            const filteredLeaderboard = leaderboard.filter(entry => entry.username !== username);
+
+            // Рендерим топ-10 без текущего игрока
+            filteredLeaderboard.slice(0, 10).forEach((entry, index) => {
                 const li = document.createElement('li');
                 const rank = index + 1;
                 const rankText = rank <= 3 ? (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉') : `#${rank}`;
-                
+
                 // Создание аватарки
                 const avatar = document.createElement('div');
                 avatar.className = 'avatar';
                 avatar.style.backgroundColor = getRandomColor(); // Функция для получения случайного цвета
                 avatar.textContent = entry.username.substring(0, 2);
-                
+
                 // Добавление медальки и аватарки с отступом
                 li.innerHTML = `<span class="rank">${rankText}</span>`;
                 li.appendChild(avatar);
                 li.innerHTML += `<span>${entry.username}</span><span>${entry.coins} $MASKS</span>`;
                 leaderboardList.appendChild(li);
-                
-                if (entry.username === username) {
-                    userRank = rank;
-                }
             });
-            
-            // Если игрок не в топ-10, находим его место в общем списке
-            userRankElem.textContent = 'Your place: --';
+
+            // Определяем ранг текущего пользователя
+            const userPosition = leaderboard.findIndex(entry => entry.username === username) + 1;
+            userRankElem.textContent = userPosition > 10 ? `Your place: ${userPosition}` : 'Your place: --';
         }
 
         function getRandomColor() {
@@ -922,20 +950,20 @@
 
         function getPlayersText(count) {
             if (count === 1) {
-                return 'player';
+                return 'игрок';
             } else {
-                return 'players';
+                return 'игроков';
             }
         }
 
-
-        function joinTelegramChannel(url) {
-            window.open(url, '_blank');
-            // После подписки добавьте логику для проверки выполнения задания
-            // Пример:
-            // tasksCompleted[url] = true;
-            // updateTaskStatuses();
+        function saveLeaderboard() {
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
         }
+
+        function loadLeaderboard() {
+            leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        }
+
 
         function saveProgress() {
             localStorage.setItem('coins', coins);
@@ -952,14 +980,6 @@
         function loadProgress() {
             coins = parseFloat(localStorage.getItem('coins')) || 0;
             updateCoins();
-        }
-
-        function saveLeaderboard() {
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-        }
-
-        function loadLeaderboard() {
-            leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
         }
 
         // Установка времени начала и окончания таймера
