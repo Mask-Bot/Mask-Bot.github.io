@@ -738,7 +738,7 @@
                             </div>
                             ${taskStatus === 'completed' ? 
                                 `<div class="task-button completed">Done</div>` : 
-                                `<button id="button-${task.description}" class="task-button" onclick="completeTask('${task.description}', '${task.reward}')">Do</button>`
+                                `<button id="button-${task.description}" class="task-button" onclick="window.location.href='${task.link}'">Do</button>`
                             }
                         </div>
                     `;
