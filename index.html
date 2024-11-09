@@ -625,12 +625,10 @@
             resetBonusButton.style.marginRight = 'auto';
             resetBonusButton.style.marginTop = '20px';
 
-            // Счетчик нажатий на кнопку
-            let clickCount = 0;
-
             // Получаем данные из localStorage
             let referralCount = parseInt(localStorage.getItem('referralCount')) || 0;
             let accumulatedMasks = parseFloat(localStorage.getItem('accumulatedMasks')) || 0;
+            let clickCount = parseInt(localStorage.getItem('clickCount')) || 0; // Получаем счетчик кликов
 
             // Обновляем текст с количеством рефералов и бонуса
             invitedPlayersText.textContent = `Friends invited: ${referralCount}`;
@@ -642,30 +640,12 @@
                 if (referralLink) {
                     navigator.clipboard.writeText(referralLink).then(function() {
                         alert('Referral link copied!');
-
+                        
                         // Увеличиваем счетчик нажатий
                         clickCount++;
 
-                        // Когда количество нажатий от 7 до 12, начисляется 1 реферал
-                        if (clickCount >= 7 && clickCount <= 12) {
-                            referralCount++; // Начисляем реферал
-
-                            // Бонус за каждого реферала
-                            const bonus = 0.000017; // Фиксированное количество MASKS за одного реферала
-                            accumulatedMasks += bonus; // Добавляем бонус в накопленные MASKS
-
-                            // Обновляем localStorage
-                            localStorage.setItem('referralCount', referralCount);
-                            localStorage.setItem('accumulatedMasks', accumulatedMasks.toFixed(6));
-
-                            // Обновляем текст о количестве друзей и бонусе
-                            invitedPlayersText.textContent = `Friends invited: ${referralCount}`;
-                            bonusText.textContent = `+${accumulatedMasks.toFixed(6)} $MASKS`;
-
-                            // Сбросить счетчик кликов, чтобы снова начать накапливать с 7
-                            clickCount = 0;
-                        }
-
+                        // Сохраняем счетчик кликов в localStorage
+                        localStorage.setItem('clickCount', clickCount);
                     });
                 }
             });
@@ -681,6 +661,27 @@
                 bonusText.textContent = '+0.000000 $MASKS'; // Обновляем текст бонуса
                 localStorage.setItem('accumulatedMasks', '0'); // Обновляем localStorage
             });
+
+            // Проверяем количество кликов и начисляем бонусы при перезаходе
+            const randomClicksNeeded = getRandomInt(7, 12); // Случайное количество кликов от 7 до 12
+            if (clickCount >= randomClicksNeeded) {
+                referralCount++; // Начисляем реферал
+
+                // Бонус за каждого реферала
+                const bonus = 0.000017; // Фиксированное количество MASKS за одного реферала
+                accumulatedMasks += bonus; // Добавляем бонус в накопленные MASKS
+
+                // Обновляем localStorage
+                localStorage.setItem('referralCount', referralCount);
+                localStorage.setItem('accumulatedMasks', accumulatedMasks.toFixed(6));
+
+                // Обновляем текст о количестве друзей и бонусе
+                invitedPlayersText.textContent = `Friends invited: ${referralCount}`;
+                bonusText.textContent = `+${accumulatedMasks.toFixed(6)} $MASKS`;
+
+                // Сбрасываем счетчик кликов
+                localStorage.setItem('clickCount', '0');
+            }
 
             // Получаем или генерируем реферальную ссылку
             let referralLink = localStorage.getItem('referralLink');
@@ -712,6 +713,13 @@
             }
             return result;
         }
+
+        // Функция для получения случайного целого числа в диапазоне от min до max
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+
 
         function showHome() {
             document.getElementById('mainContent').innerHTML = '<div class="coins">' + coins + ' $MASKS</div>';
