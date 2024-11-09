@@ -479,7 +479,7 @@
         <button onclick="showTasks()">
             <img src="tasks_icon.png" alt="tasks" style="width: 30px; height: 30px;">
         </button>
-        <button onclick="clearContent()">
+        <button onclick="showFriends()">
             <img src="friends_icon.png" alt="friends" style="width: 30px; height: 30px;">
         </button>
         <button onclick="wallet()">
@@ -539,9 +539,97 @@
             document.querySelector('.coins').textContent = coins + ' $MASKS';
         }
 
-        function clearContent() {
+        function showFriends() {
             document.getElementById('mainContent').innerHTML = '';
+
+            // Создаем контейнер для всей вкладки
+            const container = document.createElement('div');
+            container.style.padding = '20px';
+            container.style.fontFamily = 'Arial, sans-serif';
+
+            // Получаем или генерируем реферальную ссылку
+            let referralLink = localStorage.getItem('referralLink');
+            if (!referralLink) {
+                const randomString = generateRandomString(12); // Генерируем случайную строку
+                referralLink = `https://t.me/mask_token_bot?start=${randomString}`;
+                localStorage.setItem('referralLink', referralLink); // Сохраняем реферальную ссылку в localStorage
+            }
+
+            // Проверка, есть ли реферальный параметр в URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const referrer = urlParams.get('start');
+
+            // Если параметр 'start' существует в URL, увеличиваем счетчик рефералов
+            if (referrer) {
+                // Получаем текущий счетчик приглашенных игроков реферала
+                let currentInvited = parseInt(localStorage.getItem('invitedPlayers') || '0');
+                currentInvited += 1; // Увеличиваем счетчик на 1
+                localStorage.setItem('invitedPlayers', currentInvited); // Сохраняем обновленное количество в localStorage
+            }
+
+            // Получаем количество приглашенных игроков из localStorage
+            const invitedPlayersCount = localStorage.getItem('invitedPlayers') || '0';
+
+            // Создаем контейнер для реферальной ссылки
+            const referralLinkContainer = document.createElement('div');
+            referralLinkContainer.style.display = 'flex';
+            referralLinkContainer.style.justifyContent = 'space-between';
+            referralLinkContainer.style.alignItems = 'center';
+            referralLinkContainer.style.marginBottom = '20px';
+
+            const referralLinkText = document.createElement('span');
+            referralLinkText.textContent = referralLink;
+            referralLinkText.style.fontSize = '16px';
+            referralLinkText.style.fontWeight = 'bold';
+            referralLinkText.style.wordWrap = 'break-word';
+
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Копировать';
+            copyButton.style.padding = '8px 16px';
+            copyButton.style.backgroundColor = '#4CAF50';
+            copyButton.style.color = 'white';
+            copyButton.style.border = 'none';
+            copyButton.style.cursor = 'pointer';
+            copyButton.style.borderRadius = '5px';
+
+            // Функция для копирования ссылки в буфер обмена
+            copyButton.addEventListener('click', function() {
+                navigator.clipboard.writeText(referralLink).then(function() {
+                    alert('Ссылка скопирована!');
+                });
+            });
+
+            referralLinkContainer.appendChild(referralLinkText);
+            referralLinkContainer.appendChild(copyButton);
+
+            // Добавляем информацию о приглашенных игроках
+            const invitedPlayersText = document.createElement('p');
+            invitedPlayersText.textContent = `Invited players: ${invitedPlayersCount}`; // Отображаем актуальное количество
+            invitedPlayersText.style.fontSize = '18px';
+            invitedPlayersText.style.fontWeight = 'bold';
+            invitedPlayersText.style.marginTop = '20px';
+
+            // Добавляем все элементы в контейнер
+            container.appendChild(referralLinkContainer);
+            container.appendChild(invitedPlayersText);
+
+            // Добавляем контейнер на страницу
+            document.getElementById('mainContent').appendChild(container);
         }
+
+        // Функция для генерации случайной строки длиной 12 символов
+        function generateRandomString(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+
+
 
         function showHome() {
             document.getElementById('mainContent').innerHTML = '<div class="coins">' + coins + ' $MASKS</div>';
