@@ -865,20 +865,6 @@
             });
         }
 
-        // Загружаем сохранённые данные при загрузке страницы
-        window.onload = function() {
-            Telegram.WebApp.ready();
-            const user = Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                username = user.username || user.first_name;
-            }
-            loadProgress();
-            loadLeaderboard();
-            loadTasks();
-            Telegram.WebApp.expand(); // Развернуть на весь экран
-            showHome(); // Показываем вкладку "Домой" при загрузке
-        }
-
 
 
         function updateLeaderboard() {
