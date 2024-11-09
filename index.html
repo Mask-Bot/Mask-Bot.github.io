@@ -862,7 +862,7 @@
 
         // Загружаем сохранённые данные при загрузке страницы
         window.onload = function() {
-            Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand()
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 username = user.username || user.first_name;
