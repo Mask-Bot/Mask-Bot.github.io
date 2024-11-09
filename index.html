@@ -738,7 +738,7 @@
                             </div>
                             ${taskStatus === 'completed' ? 
                                 `<div class="task-button completed">Done</div>` : 
-                                `<button id="button-${task.description}" class="task-button" onclick="window.location.href='${task.link}'">Do</button>`
+                                `<button id="button-${task.description}" class="task-button" onclick="completeTaskAndRedirect('${task.description}', '${task.reward}', '${task.link}')">Do</button>`
                             }
                         </div>
                     `;
@@ -788,6 +788,11 @@
                     ${tasksHTML}
                 </div>
             `;
+        }
+
+        function completeTaskAndRedirect(description, reward, link) {
+            completeTask(description, reward);  // Ваш существующий код для выполнения задачи
+            window.location.href = link;  // Редирект на ссылку задачи
         }
 
         // Функция для сохранения текста кастомного задания в localStorage
