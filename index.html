@@ -491,7 +491,7 @@
         let leaderboard = [];
 
         window.onload = function() {
-            window.Telegram.WebApp.expand() // Развернуть на весь экран
+            Telegram.WebApp.expand(); // Развернуть на весь экран
             Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
@@ -713,18 +713,15 @@
         function showTasks() {
             const advertisers = [
                 {
-                    name: 'Рекламодатель 1',
+                    name: 'Tasks for $MASKS',
                     tasks: [
-                        {description: 'Subscribe to Telegram', link: 'https://t.me/your_channel_1', reward: '+0.000112 $MASKS'},
-                        {description: 'Subscribe to Instagram', link: 'https://instagram.com/your_instagram', reward: '+0.000032 $MASKS'},
-                        {description: 'Subscribe to YouTube', link: 'https://youtube.com/your_youtube_channel', reward: '+0.000032 $MASKS'}
-                    ]
-                },
-                {
-                    name: 'Рекламодатель 2',
-                    tasks: [
-                        {description: 'Subscribe to Facebook', link: 'https://facebook.com/your_facebook_page', reward: '+0.000032 $MASKS'},
-                        {description: 'Subscribe to Twitter', link: 'https://twitter.com/your_twitter', reward: '+0.000032 $MASKS'}
+                        {description: 'Subscribe to our channel', link: 'https://t.me/MaskOfficialChannel', reward: '+0.000112 $MASKS'},
+                        {description: 'Play PAWS', link: 'https://t.me/PAWSOG_bot', reward: '+0.000032 $MASKS'},
+                        {description: 'Subscribe to PAWS channel', link: 'https://t.me/pawsupfam', reward: '+0.000032 $MASKS'},
+                        {description: 'Play GOATS', link: 'https://t.me/realgoats_bot', reward: '+0.000032 $MASKS'},
+                        {description: 'Subscribe to GOATS channel', link: 'https://t.me/realgoats_channel', reward: '+0.000032 $MASKS'},
+                        {description: 'Play Agent 301', link: 'https://t.me/Agent301Bot', reward: '+0.000032 $MASKS'},
+                        {description: 'Subscribe to Agent 301 channel', link: 'https://t.me/app301', reward: '+0.000032 $MASKS'}
                     ]
                 }
             ];
@@ -862,7 +859,7 @@
 
         // Загружаем сохранённые данные при загрузке страницы
         window.onload = function() {
-            window.Telegram.WebApp.expand()
+            Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 username = user.username || user.first_name;
