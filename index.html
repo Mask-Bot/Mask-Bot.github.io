@@ -491,7 +491,7 @@
         let leaderboard = [];
 
         window.onload = function() {
-            Telegram.WebApp.expand(); // Развернуть на весь экран
+            window.Telegram.WebApp.expand() // Развернуть на весь экран
             Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
