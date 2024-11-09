@@ -445,7 +445,7 @@
     <div id="welcomeModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h2>Welcome Bonus</h2>
-            <p>+0.00146 $MASKS</p>
+            <p>+0.000326 $MASKS</p>
             <button onclick="claimBonus()">Get</button>
         </div>
     </div>
@@ -547,6 +547,141 @@
             container.style.padding = '20px';
             container.style.fontFamily = 'Arial, sans-serif';
 
+            // Создаем заголовок "Invite your friends!"
+            const heading = document.createElement('h1');
+            heading.textContent = 'Invite your friends!';
+            heading.style.fontSize = '32px';
+            heading.style.fontWeight = 'bold';
+            heading.style.color = 'white';
+            heading.style.textAlign = 'center';
+            heading.style.marginBottom = '10px';
+
+            // Создаем подзаголовок "You and your friends will get bonus."
+            const subheading = document.createElement('p');
+            subheading.textContent = 'You and your friends will get bonus.';
+            subheading.style.fontSize = '18px';
+            subheading.style.color = '#888'; // Светло-серый
+            subheading.style.textAlign = 'center';
+            subheading.style.marginBottom = '20px';
+
+            // Добавляем текст бонуса "+0 $MASKS"
+            const bonusText = document.createElement('p');
+            bonusText.textContent = '+0 $MASKS'; // Это будет меняться динамически
+            bonusText.style.fontSize = '24px';
+            bonusText.style.fontWeight = 'bold';
+            bonusText.style.color = '#4CAF50';
+            bonusText.style.textAlign = 'center';
+            bonusText.style.marginBottom = '30px';
+
+            // Создаем кнопку "Claim"
+            const claimButton = document.createElement('button');
+            claimButton.textContent = 'Claim';
+            claimButton.style.padding = '15px 30px';
+            claimButton.style.backgroundColor = '#4CAF50';
+            claimButton.style.color = 'white';
+            claimButton.style.border = 'none';
+            claimButton.style.cursor = 'pointer';
+            claimButton.style.borderRadius = '10px';
+            claimButton.style.fontSize = '18px';
+            claimButton.style.marginBottom = '20px';
+            claimButton.style.display = 'block';
+            claimButton.style.marginLeft = 'auto';
+            claimButton.style.marginRight = 'auto';
+
+            // Создаем кнопку "Copy invite link"
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Copy invite link';
+            copyButton.style.padding = '15px 30px';
+            copyButton.style.backgroundColor = '#2196F3';
+            copyButton.style.color = 'white';
+            copyButton.style.border = 'none';
+            copyButton.style.cursor = 'pointer';
+            copyButton.style.borderRadius = '10px';
+            copyButton.style.fontSize = '18px';
+            copyButton.style.display = 'block';
+            copyButton.style.marginLeft = 'auto';
+            copyButton.style.marginRight = 'auto';
+
+            // Текст с количеством приглашенных друзей
+            const invitedPlayersText = document.createElement('p');
+            invitedPlayersText.textContent = 'Friends invited: 0'; // Поставим 0 как заглушку
+            invitedPlayersText.style.fontSize = '18px';
+            invitedPlayersText.style.fontWeight = 'bold';
+            invitedPlayersText.style.textAlign = 'center';
+            invitedPlayersText.style.marginTop = '20px';
+
+            // Создаем кнопку для сброса бонуса
+            const resetBonusButton = document.createElement('button');
+            resetBonusButton.textContent = 'Reset bonus to +0 $MASKS';
+            resetBonusButton.style.padding = '15px 30px';
+            resetBonusButton.style.backgroundColor = '#FF5722'; // Оранжевый
+            resetBonusButton.style.color = 'white';
+            resetBonusButton.style.border = 'none';
+            resetBonusButton.style.cursor = 'pointer';
+            resetBonusButton.style.borderRadius = '10px';
+            resetBonusButton.style.fontSize = '18px';
+            resetBonusButton.style.display = 'block';
+            resetBonusButton.style.marginLeft = 'auto';
+            resetBonusButton.style.marginRight = 'auto';
+            resetBonusButton.style.marginTop = '20px';
+
+            // Счетчик нажатий на кнопку
+            let clickCount = 0;
+
+            // Получаем данные из localStorage
+            let referralCount = parseInt(localStorage.getItem('referralCount')) || 0;
+            let accumulatedMasks = parseFloat(localStorage.getItem('accumulatedMasks')) || 0;
+
+            // Обновляем текст с количеством рефералов и бонуса
+            invitedPlayersText.textContent = `Friends invited: ${referralCount}`;
+            bonusText.textContent = `+${accumulatedMasks.toFixed(6)} $MASKS`;
+
+            // Функция для копирования ссылки в буфер обмена
+            copyButton.addEventListener('click', function() {
+                const referralLink = localStorage.getItem('referralLink');
+                if (referralLink) {
+                    navigator.clipboard.writeText(referralLink).then(function() {
+                        alert('Referral link copied!');
+
+                        // Увеличиваем счетчик нажатий
+                        clickCount++;
+
+                        // Когда количество нажатий от 7 до 12, начисляется 1 реферал
+                        if (clickCount >= 7 && clickCount <= 12) {
+                            referralCount++; // Начисляем реферал
+
+                            // Бонус за каждого реферала
+                            const bonus = 0.000017; // Фиксированное количество MASKS за одного реферала
+                            accumulatedMasks += bonus; // Добавляем бонус в накопленные MASKS
+
+                            // Обновляем localStorage
+                            localStorage.setItem('referralCount', referralCount);
+                            localStorage.setItem('accumulatedMasks', accumulatedMasks.toFixed(6));
+
+                            // Обновляем текст о количестве друзей и бонусе
+                            invitedPlayersText.textContent = `Friends invited: ${referralCount}`;
+                            bonusText.textContent = `+${accumulatedMasks.toFixed(6)} $MASKS`;
+
+                            // Сбросить счетчик кликов, чтобы снова начать накапливать с 7
+                            clickCount = 0;
+                        }
+
+                    });
+                }
+            });
+
+            // Функция для начисления бонусов на баланс при нажатии кнопки "Claim"
+            claimButton.addEventListener('click', function() {
+                addMasksToBalance(accumulatedMasks); // Добавляем бонус к балансу
+            });
+
+            // Функция для сброса бонуса на +0 $MASKS
+            claimButton.addEventListener('click', function() {
+                accumulatedMasks = 0; // Сбрасываем накопленные MASKS
+                bonusText.textContent = '+0.000000 $MASKS'; // Обновляем текст бонуса
+                localStorage.setItem('accumulatedMasks', '0'); // Обновляем localStorage
+            });
+
             // Получаем или генерируем реферальную ссылку
             let referralLink = localStorage.getItem('referralLink');
             if (!referralLink) {
@@ -555,62 +690,12 @@
                 localStorage.setItem('referralLink', referralLink); // Сохраняем реферальную ссылку в localStorage
             }
 
-            // Проверка, есть ли реферальный параметр в URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const referrer = urlParams.get('start');
-
-            // Если параметр 'start' существует в URL, увеличиваем счетчик рефералов
-            if (referrer) {
-                // Получаем текущий счетчик приглашенных игроков реферала
-                let currentInvited = parseInt(localStorage.getItem('invitedPlayers') || '0');
-                currentInvited += 1; // Увеличиваем счетчик на 1
-                localStorage.setItem('invitedPlayers', currentInvited); // Сохраняем обновленное количество в localStorage
-            }
-
-            // Получаем количество приглашенных игроков из localStorage
-            const invitedPlayersCount = localStorage.getItem('invitedPlayers') || '0';
-
-            // Создаем контейнер для реферальной ссылки
-            const referralLinkContainer = document.createElement('div');
-            referralLinkContainer.style.display = 'flex';
-            referralLinkContainer.style.justifyContent = 'space-between';
-            referralLinkContainer.style.alignItems = 'center';
-            referralLinkContainer.style.marginBottom = '20px';
-
-            const referralLinkText = document.createElement('span');
-            referralLinkText.textContent = referralLink;
-            referralLinkText.style.fontSize = '16px';
-            referralLinkText.style.fontWeight = 'bold';
-            referralLinkText.style.wordWrap = 'break-word';
-
-            const copyButton = document.createElement('button');
-            copyButton.textContent = 'Копировать';
-            copyButton.style.padding = '8px 16px';
-            copyButton.style.backgroundColor = '#4CAF50';
-            copyButton.style.color = 'white';
-            copyButton.style.border = 'none';
-            copyButton.style.cursor = 'pointer';
-            copyButton.style.borderRadius = '5px';
-
-            // Функция для копирования ссылки в буфер обмена
-            copyButton.addEventListener('click', function() {
-                navigator.clipboard.writeText(referralLink).then(function() {
-                    alert('Ссылка скопирована!');
-                });
-            });
-
-            referralLinkContainer.appendChild(referralLinkText);
-            referralLinkContainer.appendChild(copyButton);
-
-            // Добавляем информацию о приглашенных игроках
-            const invitedPlayersText = document.createElement('p');
-            invitedPlayersText.textContent = `Invited players: ${invitedPlayersCount}`; // Отображаем актуальное количество
-            invitedPlayersText.style.fontSize = '18px';
-            invitedPlayersText.style.fontWeight = 'bold';
-            invitedPlayersText.style.marginTop = '20px';
-
             // Добавляем все элементы в контейнер
-            container.appendChild(referralLinkContainer);
+            container.appendChild(heading);
+            container.appendChild(subheading);
+            container.appendChild(bonusText);
+            container.appendChild(claimButton);
+            container.appendChild(copyButton);
             container.appendChild(invitedPlayersText);
 
             // Добавляем контейнер на страницу
@@ -627,9 +712,6 @@
             }
             return result;
         }
-
-
-
 
         function showHome() {
             document.getElementById('mainContent').innerHTML = '<div class="coins">' + coins + ' $MASKS</div>';
@@ -653,9 +735,6 @@
                 '</div>';
             renderLeaderboard();
         }
-
-       
-        
 
         function showTasks() {
             const advertisers = [
