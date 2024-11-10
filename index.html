@@ -692,15 +692,9 @@
 
         function showLeaderboard() {
             updateLeaderboard();
-            const totalUsers = leaderboard.length;
             document.getElementById('mainContent').innerHTML = 
                 '<div class="leaderboard" id="leaderboard">' +
                     '<h1>Leaders</h1>' +
-                    '<div class="player-rank">' +
-                        '<p id="userRank">Your place: --</p>' +
-                    '</div>' +
-                    '<div class="leaderboard-info">' +
-                    '</div>' +
                     '<ul id="leaderboardList"></ul>' +
                 '</div>';
             renderLeaderboard();
@@ -874,7 +868,6 @@
 
 
         function updateLeaderboard() {
-            leaderboard = leaderboard.filter(entry => entry.username !== 'Петя');
             // Статичные игроки
             const staticPlayers = [
                 { username: 'Tam°°°', coins: 0.42844364 },
@@ -889,32 +882,19 @@
                 { username: 'Sandra🐈‍⬛', coins: 0.16290011 }
             ];
 
-            // Добавляем статичных игроков в лидерборд, если их там нет
-            staticPlayers.forEach(player => {
-                const existingPlayer = leaderboard.find(entry => entry.username === player.username);
-                if (!existingPlayer) {
-                    leaderboard.push(player);
-                }
-            });
+            // Добавляем статичных игроков в лидерборд
+            leaderboard = [...staticPlayers];
 
-            // Сортируем остальной список по убыванию
+            // Сортируем по убыванию
             leaderboard.sort((a, b) => b.coins - a.coins);
-
-            // Сохраняем лидерборд
-            saveLeaderboard();
         }
 
         function renderLeaderboard() {
             const leaderboardList = document.getElementById('leaderboardList');
-            const userRankElem = document.getElementById('userRank');
             leaderboardList.innerHTML = '';
-            let userRank = null;
 
-            // Отфильтровываем текущего игрока из топ-10
-            const filteredLeaderboard = leaderboard.filter(entry => entry.username !== username);
-
-            // Рендерим топ-10 без текущего игрока
-            filteredLeaderboard.slice(0, 10).forEach((entry, index) => {
+            // Рендерим топ-10 игроков
+            leaderboard.slice(0, 10).forEach((entry, index) => {
                 const li = document.createElement('li');
                 const rank = index + 1;
                 const rankText = rank <= 3 ? (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉') : `#${rank}`;
@@ -922,7 +902,7 @@
                 // Создание аватарки
                 const avatar = document.createElement('div');
                 avatar.className = 'avatar';
-                avatar.style.backgroundColor = getRandomColor(); // Функция для получения случайного цвета
+                avatar.style.backgroundColor = getRandomColor();
                 avatar.textContent = entry.username.substring(0, 2);
 
                 // Добавление медальки и аватарки с отступом
@@ -931,9 +911,6 @@
                 li.innerHTML += `<span>${entry.username}</span><span>${entry.coins} $MASKS</span>`;
                 leaderboardList.appendChild(li);
             });
-
-            // Определяем ранг текущего пользователя
-            userRankElem.textContent = 'Your place: --';
         }
 
         function getRandomColor() {
@@ -944,23 +921,6 @@
             }
             return color;
         }
-
-        function getPlayersText(count) {
-            if (count === 1) {
-                return 'игрок';
-            } else {
-                return 'игроков';
-            }
-        }
-
-        function saveLeaderboard() {
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-        }
-
-        function loadLeaderboard() {
-            leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-        }
-
 
         function saveProgress() {
             localStorage.setItem('coins', coins);
