@@ -738,7 +738,7 @@
                             </div>
                             ${taskStatus === 'completed' ? 
                                 `<div class="task-button completed">Done</div>` : 
-                                `<button id="button-${task.description}" class="task-button" onclick="completeTaskAndRedirect('${task.description}', '${task.reward}', '${task.link}')">Do</button>`
+                                `<button id="button-${task.description}" class="task-button" onclick="completeTask('${task.description}', '${task.reward}')">Do</button>`
                             }
                         </div>
                     `;
@@ -788,11 +788,6 @@
                     ${tasksHTML}
                 </div>
             `;
-        }
-
-        function completeTaskAndRedirect(description, reward, link) {
-            completeTask(description, reward);  // Ваш существующий код для выполнения задачи
-            window.location.href = link;  // Редирект на ссылку задачи
         }
 
         // Функция для сохранения текста кастомного задания в localStorage
@@ -864,6 +859,7 @@
 
         // Загружаем сохранённые данные при загрузке страницы
         window.onload = function() {
+            Telegram.WebApp.expand();
             Telegram.WebApp.ready();
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
@@ -872,7 +868,6 @@
             loadProgress();
             loadLeaderboard();
             loadTasks();
-            Telegram.WebApp.expand(); // Развернуть на весь экран
             showHome(); // Показываем вкладку "Домой" при загрузке
         }
 
@@ -884,14 +879,14 @@
             const staticPlayers = [
                 { username: 'Tam°°°', coins: 0.42844364 },
                 { username: 'Dizano', coins: 0.31714607 },
-                { username: 'DavaidF', coins: 0.22138812 },
+                { username: 'Давид🍅🦆BOND🐾', coins: 0.22138812 },
                 { username: 'Mohammed Rizza', coins: 0.21293022 },
                 { username: 'Gtes', coins: 0.18542956 },
-                { username: 'Игрок 6', coins: 0.18248886 },
-                { username: 'Игрок 7', coins: 0.17745257 },
-                { username: 'Игрок 8', coins: 0.17520161 },
-                { username: 'Игрок 9', coins: 0.16580244 },
-                { username: 'Игрок 10', coins: 0.16290011 }
+                { username: 'Robert_XxX', coins: 0.18248886 },
+                { username: 'Marshal', coins: 0.17745257 },
+                { username: 'Yriyy', coins: 0.17520161 },
+                { username: 'DavaidF', coins: 0.16580244 },
+                { username: 'Sandra🐈‍⬛', coins: 0.16290011 }
             ];
 
             // Добавляем статичных игроков в лидерборд, если их там нет
@@ -938,8 +933,7 @@
             });
 
             // Определяем ранг текущего пользователя
-            const userPosition = leaderboard.findIndex(entry => entry.username === username) + 1;
-            userRankElem.textContent = userPosition > 10 ? `Your place: ${userPosition}` : 'Your place: --';
+            userRankElem.textContent = 'Your place: --';
         }
 
         function getRandomColor() {
