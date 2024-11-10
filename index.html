@@ -813,6 +813,8 @@
                 // Если задание не начато, меняем его статус на "в процессе"
                 setTaskStatus(taskDescription, 'in progress');
                 button.innerText = "Check";  // Изменяем текст кнопки на "Check"
+                // Перенаправляем на ссылку
+                window.location.href = getTaskLink(taskDescription);
             } else if (taskStatus === 'in progress') {
                 // Если задание в процессе, меняем его статус на "completed"
                 setTaskStatus(taskDescription, 'completed');
@@ -820,6 +822,19 @@
                 addMasksToBalance(reward);
                 saveProgress(); // Сохраняем прогресс
             }
+        }
+
+        function getTaskLink(taskDescription) {
+            const taskLinks = {
+                'Subscribe to our channel': 'https://t.me/MaskOfficialChannel',
+                'Play PAWS': 'https://t.me/PAWSOG_bot',
+                'Subscribe to PAWS channel': 'https://t.me/pawsupfam',
+                'Play GOATS': 'https://t.me/realgoats_bot',
+                'Subscribe to GOATS channel': 'https://t.me/realgoats_channel',
+                'Play Agent 301': 'https://t.me/Agent301Bot',
+                'Subscribe to Agent 301 channel': 'https://t.me/app301'
+            };
+            return taskLinks[taskDescription] || '#';
         }
 
         // Функция для установки статуса задания
