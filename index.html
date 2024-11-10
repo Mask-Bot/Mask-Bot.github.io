@@ -709,13 +709,13 @@
                 {
                     name: 'Tasks for $MASKS',
                     tasks: [
-                        {description: 'Subscribe to our channel', link: 'https://t.me/MaskOfficialChannel', reward: '+0.000112 $MASKS'},
-                        {description: 'Play PAWS', link: 'https://t.me/PAWSOG_bot', reward: '+0.000032 $MASKS'},
-                        {description: 'Subscribe to PAWS channel', link: 'https://t.me/pawsupfam', reward: '+0.000032 $MASKS'},
-                        {description: 'Play GOATS', link: 'https://t.me/realgoats_bot', reward: '+0.000032 $MASKS'},
-                        {description: 'Subscribe to GOATS channel', link: 'https://t.me/realgoats_channel', reward: '+0.000032 $MASKS'},
-                        {description: 'Play Agent 301', link: 'https://t.me/Agent301Bot', reward: '+0.000032 $MASKS'},
-                        {description: 'Subscribe to Agent 301 channel', link: 'https://t.me/app301', reward: '+0.000032 $MASKS'}
+                        {description: 'Subscribe to our channel', link: 'https://t.me/MaskOfficialChannel', reward: '+0.000112 $MASKS', avatar: 'add1.png'},
+                        {description: 'Play PAWS', link: 'https://t.me/PAWSOG_bot', reward: '+0.000032 $MASKS', avatar: 'add2.png'},
+                        {description: 'Subscribe to PAWS channel', link: 'https://t.me/pawsupfam', reward: '+0.000032 $MASKS', avatar: 'add2.png'},
+                        {description: 'Play GOATS', link: 'https://t.me/realgoats_bot', reward: '+0.000032 $MASKS', avatar: 'add3.png'},
+                        {description: 'Subscribe to GOATS channel', link: 'https://t.me/realgoats_channel', reward: '+0.000032 $MASKS', avatar: 'add3.png'},
+                        {description: 'Play Agent 301', link: 'https://t.me/Agent301Bot', reward: '+0.000032 $MASKS', avatar: 'add4.png'},
+                        {description: 'Subscribe to Agent 301 channel', link: 'https://t.me/app301', reward: '+0.000032 $MASKS', avatar: 'add4.png'}
                     ]
                 }
             ];
@@ -725,7 +725,7 @@
                     const taskStatus = getTaskStatus(task.description);  // Получаем статус задания
                     return `
                         <div class="task" style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <img src="https://via.placeholder.com/60" alt="Avatar" style="width: 60px; height: 60px; margin-right: 10px;">
+                            <img src="${task.avatar}" alt="Avatar" style="width: 60px; height: 60px; margin-right: 10px;">
                             <div class="task-details" style="flex-grow: 1;">
                                 <div class="description" style="font-size: 14px; font-weight: bold;">${task.description}</div>
                                 <div class="reward" style="font-size: 14px; color: rgb(0, 202, 0); margin-top: 5px; font-weight: bold; text-align: left; margin-left: 10px;">${task.reward}</div>
